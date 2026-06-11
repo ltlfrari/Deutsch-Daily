@@ -1102,7 +1102,7 @@ function buildQuiz(testIdx) {
 
   const questions = [];
 
-  // 3 noun questions
+  // 3 noun translation questions
   const nounPick = shuffle(allNouns).slice(0, 3);
   nounPick.forEach(n => questions.push(makeWordQ(n, 'Translate the noun')));
 
@@ -1117,6 +1117,26 @@ function buildQuiz(testIdx) {
   // 2 sentence questions
   const sentPick = shuffle(allSentences).slice(0, 2);
   sentPick.forEach(s => questions.push(makeSentenceQ(s)));
+
+  // 4 article questions — pick 4 nouns, ask which article
+  const articlePick = shuffle(allNouns).slice(0, 4);
+  articlePick.forEach(n => {
+    // Extract article and bare noun from e.g. "der Hund"
+    const parts = n.de.split(' ');
+    const article = parts[0]; // der / die / das
+    const bareNoun = parts.slice(1).join(' ');
+    // Determine correct article from note or from the word itself
+    const articles = ['der', 'die', 'das'];
+    const correctArticle = article.toLowerCase();
+    questions.push({
+      type: 'article',
+      typeLabel: 'Choose the correct article',
+      question: bareNoun,
+      sub: `(${n.en})`,
+      correct: correctArticle,
+      options: articles // always show all 3
+    });
+  });
 
   return shuffle(questions);
 }
