@@ -80,17 +80,7 @@
   .icon-btn:active { background: var(--accent); color: var(--bg); }
 
   /* ── NAG BANNER ── */
-  #nag-banner {
-    margin: 0 20px 14px;
-    background: linear-gradient(135deg, #2d1b4e, #1a2d4e);
-    border-radius: var(--radius);
-    padding: 14px 18px;
-    display: none;
-    border: 1px solid #3a2a66;
-  }
-  #nag-banner.show { display: block; }
-  #nag-banner p { font-size: 14px; font-style: italic; color: #c8b8f0; line-height: 1.4; }
-  #nag-banner strong { color: var(--accent); font-style: normal; }
+
 
   /* ── LESSON CARD ── */
   .lesson-date {
@@ -471,10 +461,6 @@
       <button class="icon-btn" id="btn-notif" title="Enable notifications">🔔</button>
     </div>
   </header>
-
-  <div id="nag-banner">
-    <p id="nag-text"></p>
-  </div>
 
   <!-- ── TODAY ── -->
   <div class="screen active" id="screen-today">
@@ -940,15 +926,6 @@ function renderSettings() {
 
 // ── NAG BANNER ───────────────────────────────────────────────────────────────
 
-function showNagBanner() {
-  const today = todayStr();
-  const isDone = !!state.history.find(h => h.date === today);
-  const banner = document.getElementById('nag-banner');
-  if (isDone) { banner.classList.remove('show'); return; }
-  const msg = NAG_MESSAGES[new Date().getDay() % NAG_MESSAGES.length];
-  document.getElementById('nag-text').innerHTML = msg;
-  banner.classList.add('show');
-}
 
 // ── QUIZ LOGIC ───────────────────────────────────────────────────────────────
 
@@ -1261,7 +1238,7 @@ function showScreen(name) {
   const navBtn = document.querySelector(`.nav-btn[data-screen="${name}"]`);
   if (navBtn) navBtn.classList.add('active');
   currentScreen = name;
-  if (name === 'today') { renderLesson(); showNagBanner(); }
+  if (name === 'today') { renderLesson(); }
   if (name === 'history') renderHistory();
   if (name === 'settings') renderSettings();
   if (name === 'quiz') renderQuiz();
@@ -1337,7 +1314,6 @@ document.getElementById('btn-notif').addEventListener('click', requestNotifPermi
 })();
 
 renderLesson();
-showNagBanner();
 renderSettings();
 initServiceWorker();
 </script>
