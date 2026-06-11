@@ -507,6 +507,23 @@
   .history-test-title { font-size: 15px; font-weight: 600; color: var(--accent); margin-bottom: 3px; }
   .history-test-retake { background: var(--surface); border: 1px solid #333355; color: var(--muted); font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 10px; cursor: pointer; font-family: inherit; white-space: nowrap; }
   .history-test-retake:active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+  /* ── FINAL EXAM ── */
+  .final-exam-banner {
+    background: linear-gradient(135deg, #2a1a4a, #1a2a4a);
+    border: 1.5px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .final-exam-banner-emoji { font-size: 36px; margin-bottom: 8px; }
+  .final-exam-banner-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--accent); margin-bottom: 6px; }
+  .final-exam-banner-sub { font-size: 13px; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
+  .final-exam-banner-btn { background: var(--accent); color: var(--bg); border: none; border-radius: 12px; padding: 12px 28px; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; }
+  .level-pill.locked { opacity: 0.4; cursor: not-allowed; position: relative; }
+  .level-pill-lock-hint { font-size: 11px; color: var(--danger); margin-top: 6px; display: none; }
+  .level-pill-lock-hint.show { display: block; }
 </style>
 </head>
 <body>
@@ -567,7 +584,10 @@
         <button class="level-pill" data-level="A2">A2</button>
         <button class="level-pill" data-level="B1">B1</button>
         <button class="level-pill" data-level="B2">B2</button>
+        <button class="level-pill" data-level="C1">C1</button>
+        <button class="level-pill" data-level="C2">C2</button>
       </div>
+      <div class="level-pill-lock-hint" id="level-lock-hint">🔒 Complete the Level Exam first to unlock this level.</div>
     </div>
 
     <div class="settings-section">
@@ -735,6 +755,42 @@ const VOCAB = {
     { nouns: [{de:'die Transzendentalphilosophie', en:'transcendental philosophy', note:'feminine'}, {de:'die Anschauung', en:'intuition', note:'feminine'}, {de:'der Verstand', en:'understanding', note:'masculine'}, {de:'die Vernunft', en:'reason', note:'feminine'}, {de:'das Ding an sich', en:'the thing in itself', note:'neuter'}], verbs: [{de:'transzendieren', en:'to transcend', conj:'er transzendiert'}, {de:'synthetisieren', en:'to synthesise', conj:'er synthetisiert'}, {de:'konstituieren', en:'to constitute', conj:'er konstituiert'}, {de:'erkennen', en:'to cognise', conj:'er erkennt'}], adjs: [{de:'transzendental', en:'transcendental'}, {de:'apriorisch', en:'a priori'}, {de:'synthetisch', en:'synthetic'}, {de:'noumenal', en:'noumenal'}], sentences: [{de:'Kants Transzendentalphilosophie konstituiert apriorische Anschauungsformen durch die der Verstand die Welt erkennt.', en:"Kant's transcendental philosophy constitutes a priori forms of intuition through which the understanding cognises the world."}, {de:'Das noumenale Ding an sich transzendiert die Vernunft und kann nicht synthetisch erkannt werden.', en:'The noumenal thing in itself transcends reason and cannot be cognised synthetically.'}] },
     { nouns: [{de:'die Postmoderne', en:'postmodernity', note:'feminine'}, {de:'das Metanarrativ', en:'meta-narrative', note:'neuter'}, {de:'die Dekonstruktion', en:'deconstruction', note:'feminine'}, {de:'die Differenz', en:'difference', note:'feminine'}, {de:'die Identitätspolitik', en:'identity politics', note:'feminine'}], verbs: [{de:'dekonstruieren', en:'to deconstruct', conj:'er dekonstruiert'}, {de:'in Frage stellen', en:'to question', conj:'er stellt in Frage'}, {de:'pluralisieren', en:'to pluralise', conj:'er pluralisiert'}, {de:'subvertieren', en:'to subvert', conj:'er subvertiert'}], adjs: [{de:'postmodern', en:'postmodern'}, {de:'pluralistisch', en:'pluralistic'}, {de:'dekonstruktiv', en:'deconstructive'}, {de:'fragmentiert', en:'fragmented'}], sentences: [{de:'Postmoderne Dekonstruktion stellt pluralistische Metanarrative grundlegend in Frage und subvertiert sie.', en:'Postmodern deconstruction fundamentally questions pluralistic meta-narratives and subverts them.'}, {de:'Fragmentierte Identitätspolitik pluralisiert dekonstruktiv gesellschaftliche Differenzen und Zugehörigkeiten.', en:'Fragmented identity politics pluralises societal differences and belongings in a deconstructive manner.'}] },
   ],
+  // C1: 5 nouns, 4 verbs, 4 adj, 2 sentences — advanced academic & professional register
+  C1: [
+    { nouns: [{de:'die Ambiguität', en:'ambiguity', note:'feminine'}, {de:'der Subtext', en:'subtext', note:'masculine'}, {de:'die Implikatur', en:'implicature', note:'feminine'}, {de:'das Präsuppositionsgefüge', en:'presuppositional structure', note:'neuter'}, {de:'die Konnotation', en:'connotation', note:'feminine'}], verbs: [{de:'implizieren', en:'to imply', conj:'er impliziert'}, {de:'evozieren', en:'to evoke', conj:'er evoziert'}, {de:'disambiguieren', en:'to disambiguate', conj:'er disambiguiert'}, {de:'konnotieren', en:'to connote', conj:'er konnotiert'}], adjs: [{de:'mehrdeutig', en:'ambiguous'}, {de:'subtextreich', en:'rich in subtext'}, {de:'konnotativ', en:'connotative'}, {de:'implizit', en:'implicit'}], sentences: [{de:'Mehrdeutige Formulierungen evozieren subtextreiche Konnotationen die disambiguiert werden müssen.', en:'Ambiguous formulations evoke connotation-rich subtexts that must be disambiguated.'}, {de:'Der Sprecher impliziert durch konnotative Sprache mehr als das Präsuppositionsgefüge explizit enthält.', en:'The speaker implies more through connotative language than the presuppositional structure explicitly contains.'}] },
+    { nouns: [{de:'die Rechtsstaatlichkeit', en:'rule of law', note:'feminine'}, {de:'die Gewaltenteilung', en:'separation of powers', note:'feminine'}, {de:'das Verfassungsgericht', en:'constitutional court', note:'neuter'}, {de:'die Normenhierarchie', en:'hierarchy of norms', note:'feminine'}, {de:'der Grundrechtskatalog', en:'catalogue of fundamental rights', note:'masculine'}], verbs: [{de:'verfassungskonform auslegen', en:'to interpret constitutionally', conj:'er legt aus'}, {de:'aushebeln', en:'to circumvent', conj:'er hebelt aus'}, {de:'kodifizieren', en:'to codify', conj:'er kodifiziert'}, {de:'präzedieren', en:'to take precedence', conj:'es präzediert'}], adjs: [{de:'verfassungswidrig', en:'unconstitutional'}, {de:'justiziabel', en:'justiciable'}, {de:'normenhierarchisch', en:'hierarchically normative'}, {de:'grundrechtskonform', en:'compliant with fundamental rights'}], sentences: [{de:'Das Verfassungsgericht legt Gesetze grundrechtskonform aus und hebelt verfassungswidrige Normen aus.', en:'The constitutional court interprets laws in compliance with fundamental rights and circumvents unconstitutional norms.'}, {de:'Die kodifizierte Normenhierarchie sichert die Rechtsstaatlichkeit durch justiziable Gewaltenteilung.', en:'The codified hierarchy of norms safeguards the rule of law through justiciable separation of powers.'}] },
+    { nouns: [{de:'die Pfadabhängigkeit', en:'path dependency', note:'feminine'}, {de:'der Strukturwandel', en:'structural change', note:'masculine'}, {de:'die Transitionskosten', en:'transition costs', note:'feminine'}, {de:'das institutionelle Gefüge', en:'institutional framework', note:'neuter'}, {de:'die Interessenkoalition', en:'interest coalition', note:'feminine'}], verbs: [{de:'perpetuieren', en:'to perpetuate', conj:'er perpetuiert'}, {de:'transformieren', en:'to transform', conj:'er transformiert'}, {de:'kanalisieren', en:'to channel', conj:'er kanalisiert'}, {de:'destabilisieren', en:'to destabilise', conj:'er destabilisiert'}], adjs: [{de:'pfadabhängig', en:'path-dependent'}, {de:'institutionell verankert', en:'institutionally entrenched'}, {de:'transitorisch', en:'transitional'}, {de:'koalitionsgebunden', en:'coalition-bound'}], sentences: [{de:'Pfadabhängige institutionelle Gefüge perpetuieren bestehende Interessenkoalitionen und hemmen Strukturwandel.', en:'Path-dependent institutional frameworks perpetuate existing interest coalitions and impede structural change.'}, {de:'Transitorische Transformationsprozesse destabilisieren koalitionsgebundene Machtstrukturen nachhaltig.', en:'Transitional transformation processes sustainably destabilise coalition-bound power structures.'}] },
+    { nouns: [{de:'die Interferenz', en:'interference', note:'feminine'}, {de:'der Spracherwerb', en:'language acquisition', note:'masculine'}, {de:'die Fossilisierung', en:'fossilisation', note:'feminine'}, {de:'das Interimssystem', en:'interlanguage', note:'neuter'}, {de:'der Transferfehler', en:'transfer error', note:'masculine'}], verbs: [{de:'fossilisieren', en:'to fossilise', conj:'es fossilisiert'}, {de:'interferieren', en:'to interfere', conj:'es interferiert'}, {de:'akquirieren', en:'to acquire', conj:'er akquiriert'}, {de:'transferieren', en:'to transfer', conj:'er transferiert'}], adjs: [{de:'interferenzbedingt', en:'interference-induced'}, {de:'interlingual', en:'interlingual'}, {de:'fossiliert', en:'fossilised'}, {de:'zielsprachennah', en:'close to the target language'}], sentences: [{de:'Interferenzbedingte Transferfehler fossilisieren im Interimssystem und hemmen zielsprachennahen Erwerb.', en:'Interference-induced transfer errors fossilise in the interlanguage and impede acquisition close to the target language.'}, {de:'Interlingualer Spracherwerb interferiert mit der Erstsprache und erzeugt fossilierte Strukturen.', en:'Interlingual language acquisition interferes with the first language and produces fossilised structures.'}] },
+    { nouns: [{de:'die Hegemonietheorie', en:'hegemony theory', note:'feminine'}, {de:'der Konsens', en:'consensus', note:'masculine'}, {de:'die Zivilgesellschaft', en:'civil society', note:'feminine'}, {de:'das Kräfteverhältnis', en:'balance of forces', note:'neuter'}, {de:'die Gegenhegemonie', en:'counter-hegemony', note:'feminine'}], verbs: [{de:'hegemonisieren', en:'to hegemonise', conj:'er hegemonisiert'}, {de:'artikulieren', en:'to articulate', conj:'er artikuliert'}, {de:'sedimentieren', en:'to sediment', conj:'es sedimentiert'}, {de:'antagonisieren', en:'to antagonise', conj:'er antagonisiert'}], adjs: [{de:'hegemonial', en:'hegemonic'}, {de:'konsensuell', en:'consensual'}, {de:'antagonistisch', en:'antagonistic'}, {de:'sedimentiert', en:'sedimented'}], sentences: [{de:'Hegemoniale Kräfteverhältnisse sedimentieren konsensuell und marginalisieren antagonistische Gegenhegemonie.', en:'Hegemonic balances of forces sediment consensually and marginalise antagonistic counter-hegemony.'}, {de:'Die Zivilgesellschaft artikuliert hegemonisierte Widersprüche und antagonisiert bestehende Machtverhältnisse.', en:'Civil society articulates hegemonised contradictions and antagonises existing power relations.'}] },
+    { nouns: [{de:'die Narratologie', en:'narratology', note:'feminine'}, {de:'die Fokalisierung', en:'focalisation', note:'feminine'}, {de:'der Erzählmodus', en:'narrative mode', note:'masculine'}, {de:'die Diegese', en:'diegesis', note:'feminine'}, {de:'das Handlungsschema', en:'actantial schema', note:'neuter'}], verbs: [{de:'fokalisieren', en:'to focalise', conj:'er fokalisiert'}, {de:'narrativieren', en:'to narrativise', conj:'er narrativiert'}, {de:'diegetisieren', en:'to diegetise', conj:'er diegetisiert'}, {de:'rahmmen', en:'to frame', conj:'er rahmt'}], adjs: [{de:'homodiegetisch', en:'homodiegetic'}, {de:'extradiegetisch', en:'extradiegetic'}, {de:'fokalisiert', en:'focalised'}, {de:'narratologisch', en:'narratological'}], sentences: [{de:'Der homodiegetische Erzähler fokalisiert die Diegese intern und rahmt das Handlungsschema subjektiv.', en:'The homodiegetic narrator internally focalises the diegesis and subjectively frames the actantial schema.'}, {de:'Narratologische Analyse unterscheidet extradiegetische Erzählmodi und narrativisierte Fokalisierungsebenen.', en:'Narratological analysis distinguishes extradiegetic narrative modes and narrativised levels of focalisation.'}] },
+    { nouns: [{de:'die Risikokommunikation', en:'risk communication', note:'feminine'}, {de:'die Vulnerabilität', en:'vulnerability', note:'feminine'}, {de:'das Krisenmanagement', en:'crisis management', note:'neuter'}, {de:'die Resilienzstrategie', en:'resilience strategy', note:'feminine'}, {de:'der Risikoperzeption', en:'risk perception', note:'masculine'}], verbs: [{de:'kommunizieren', en:'to communicate', conj:'er kommuniziert'}, {de:'mitigieren', en:'to mitigate', conj:'er mitigiert'}, {de:'antizipieren', en:'to anticipate', conj:'er antizipiert'}, {de:'priorisieren', en:'to prioritise', conj:'er priorisiert'}], adjs: [{de:'vulnerabel', en:'vulnerable'}, {de:'krisenresilient', en:'crisis-resilient'}, {de:'risikoavers', en:'risk-averse'}, {de:'antizipatorisch', en:'anticipatory'}], sentences: [{de:'Effektive Risikokommunikation antizipiert vulnerabilitätsbedingte Wahrnehmungsverzerrungen und mitigiert sie.', en:'Effective risk communication anticipates vulnerability-induced perceptual distortions and mitigates them.'}, {de:'Krisenresiliente Organisationen priorisieren antizipatorische Resilienzstrategien gegenüber reaktivem Krisenmanagement.', en:'Crisis-resilient organisations prioritise anticipatory resilience strategies over reactive crisis management.'}] },
+    { nouns: [{de:'die Erkenntnissoziologie', en:'sociology of knowledge', note:'feminine'}, {de:'das Wissensregime', en:'knowledge regime', note:'neuter'}, {de:'die Episteme', en:'episteme', note:'feminine'}, {de:'der Diskursrahmen', en:'discursive frame', note:'masculine'}, {de:'die Wissensproduktion', en:'knowledge production', note:'feminine'}], verbs: [{de:'produzieren', en:'to produce', conj:'er produziert'}, {de:'legitimieren', en:'to legitimise', conj:'er legitimiert'}, {de:'sedimentieren', en:'to sediment', conj:'es sedimentiert'}, {de:'dekonstruieren', en:'to deconstruct', conj:'er dekonstruiert'}], adjs: [{de:'epistemisch', en:'epistemic'}, {de:'diskursiv gerahmt', en:'discursively framed'}, {de:'wissenssoziologisch', en:'sociology-of-knowledge-based'}, {de:'hegemonialisiert', en:'hegemonialised'}], sentences: [{de:'Wissenssoziologische Analyse dekonstruiert hegemoniale Episteme und diskursiv gerahmte Wissensregime.', en:'Sociology-of-knowledge-based analysis deconstructs hegemonic epistemes and discursively framed knowledge regimes.'}, {de:'Wissensproduktion legitimiert epistemische Ansprüche und sedimentiert sie in institutionellen Diskursrahmen.', en:'Knowledge production legitimises epistemic claims and sediments them in institutional discursive frames.'}] },
+    { nouns: [{de:'die Handlungstheorie', en:'theory of action', note:'feminine'}, {de:'die Intentionalität', en:'intentionality', note:'feminine'}, {de:'das Handlungsschema', en:'schema of action', note:'neuter'}, {de:'die Rationalitätsannahme', en:'rationality assumption', note:'feminine'}, {de:'der Akteursrahmen', en:'actor framework', note:'masculine'}], verbs: [{de:'rationalisieren', en:'to rationalise', conj:'er rationalisiert'}, {de:'intendieren', en:'to intend', conj:'er intendiert'}, {de:'konstituieren', en:'to constitute', conj:'er konstituiert'}, {de:'motivieren', en:'to motivate', conj:'er motiviert'}], adjs: [{de:'intentional', en:'intentional'}, {de:'zweckrational', en:'purpose-rational'}, {de:'wertrational', en:'value-rational'}, {de:'handlungstheoretisch', en:'action-theoretic'}], sentences: [{de:'Handlungstheoretische Modelle rationalisieren intentionale Akteursentscheidungen durch Rationalitätsannahmen.', en:'Action-theoretic models rationalise intentional actor decisions through rationality assumptions.'}, {de:'Zweckrationale und wertrationale Handlungsschemata konstituieren unterschiedliche Akteursrahmen.', en:'Purpose-rational and value-rational schemas of action constitute different actor frameworks.'}] },
+    { nouns: [{de:'die Bioethik', en:'bioethics', note:'feminine'}, {de:'die Patientenautonomie', en:'patient autonomy', note:'feminine'}, {de:'das Informed Consent', en:'informed consent', note:'neuter'}, {de:'die Ressourcenallokation', en:'resource allocation', note:'feminine'}, {de:'der Paternalismus', en:'paternalism', note:'masculine'}], verbs: [{de:'allozieren', en:'to allocate', conj:'er alloziert'}, {de:'priorisieren', en:'to prioritise', conj:'er priorisiert'}, {de:'respektieren', en:'to respect', conj:'er respektiert'}, {de:'abwägen', en:'to weigh up', conj:'er wägt ab'}], adjs: [{de:'paternalistisch', en:'paternalistic'}, {de:'autonom', en:'autonomous'}, {de:'bioethisch', en:'bioethical'}, {de:'allokativ', en:'allocative'}], sentences: [{de:'Bioethische Debatten wägen paternalistische Fürsorge gegen autonome Patientenentscheidungen ab.', en:'Bioethical debates weigh paternalistic care against autonomous patient decisions.'}, {de:'Allokative Gerechtigkeit bei der Ressourcenallokation erfordert respektiertes Informed Consent.', en:'Allocative justice in resource allocation requires respected informed consent.'}] },
+    { nouns: [{de:'die Sprachphilosophie', en:'philosophy of language', note:'feminine'}, {de:'die Referenz', en:'reference', note:'feminine'}, {de:'der Bedeutungsholismus', en:'semantic holism', note:'masculine'}, {de:'die Wahrheitsbedingung', en:'truth condition', note:'feminine'}, {de:'die Proposition', en:'proposition', note:'feminine'}], verbs: [{de:'referieren', en:'to refer', conj:'er referiert'}, {de:'prädizieren', en:'to predicate', conj:'er prädiziert'}, {de:'quantifizieren', en:'to quantify', conj:'er quantifiziert'}, {de:'semantisieren', en:'to semanticise', conj:'er semantisiert'}], adjs: [{de:'holistisch', en:'holistic'}, {de:'proposional', en:'propositional'}, {de:'referenziell', en:'referential'}, {de:'wahrheitsfunktional', en:'truth-functional'}], sentences: [{de:'Sprachphilosophische Analyse prädiziert propositionale Gehalte und prüft wahrheitsfunktionale Bedingungen.', en:'Philosophy-of-language analysis predicates propositional contents and examines truth-functional conditions.'}, {de:'Bedeutungsholismus semantisiert Referenz holistisch indem Wahrheitsbedingungen relational quantifiziert werden.', en:'Semantic holism semanticises reference holistically by relationally quantifying truth conditions.'}] },
+    { nouns: [{de:'die Metakognition', en:'metacognition', note:'feminine'}, {de:'die Selbstregulation', en:'self-regulation', note:'feminine'}, {de:'das Lernrepertoire', en:'learning repertoire', note:'neuter'}, {de:'die kognitive Belastung', en:'cognitive load', note:'feminine'}, {de:'der Elaborationsgrad', en:'degree of elaboration', note:'masculine'}], verbs: [{de:'elaborieren', en:'to elaborate', conj:'er elaboriert'}, {de:'monitoren', en:'to monitor', conj:'er monitort'}, {de:'regulieren', en:'to regulate', conj:'er reguliert'}, {de:'abrufen', en:'to retrieve', conj:'er ruft ab'}], adjs: [{de:'metakognitiv', en:'metacognitive'}, {de:'selbstreguliert', en:'self-regulated'}, {de:'kognitiv belastend', en:'cognitively demanding'}, {de:'elaboriert', en:'elaborated'}], sentences: [{de:'Metakognitive Selbstregulation monitort kognitive Belastung und optimiert elaborierte Lernrepertoires.', en:'Metacognitive self-regulation monitors cognitive load and optimises elaborated learning repertoires.'}, {de:'Hochelaborierte Wissensstrukturen werden selbstreguliert abgerufen und kognitiv wenig belastend verarbeitet.', en:'Highly elaborated knowledge structures are retrieved in a self-regulated manner and processed with little cognitive load.'}] },
+    { nouns: [{de:'die Infragestellung', en:'calling into question', note:'feminine'}, {de:'die Konventionalität', en:'conventionality', note:'feminine'}, {de:'der Normbruch', en:'breach of norms', note:'masculine'}, {de:'die Subversion', en:'subversion', note:'feminine'}, {de:'das Gegendiskurs', en:'counter-discourse', note:'neuter'}], verbs: [{de:'subvertieren', en:'to subvert', conj:'er subvertiert'}, {de:'normieren', en:'to normalise', conj:'er normiert'}, {de:'infrage stellen', en:'to call into question', conj:'er stellt infrage'}, {de:'resignifizieren', en:'to resignify', conj:'er resignifiziert'}], adjs: [{de:'konventionell', en:'conventional'}, {de:'subversiv', en:'subversive'}, {de:'normativ aufgeladen', en:'normatively charged'}, {de:'gegendiskursiv', en:'counter-discursive'}], sentences: [{de:'Subversive Gegendiskurse resignifizieren normativ aufgeladene Konventionalitäten und stellen sie infrage.', en:'Subversive counter-discourses resignify normatively charged conventionalities and call them into question.'}, {de:'Normbrüche subvertieren konventionelle Erwartungen und erzeugen gegendiskursive Bedeutungsverschiebungen.', en:'Breaches of norms subvert conventional expectations and produce counter-discursive shifts in meaning.'}] },
+    { nouns: [{de:'die Dialektik', en:'dialectics', note:'feminine'}, {de:'die Synthese', en:'synthesis', note:'feminine'}, {de:'der Widerspruch', en:'contradiction', note:'masculine'}, {de:'die Aufhebung', en:'sublation', note:'feminine'}, {de:'das Telos', en:'telos', note:'neuter'}], verbs: [{de:'synthetisieren', en:'to synthesise', conj:'er synthetisiert'}, {de:'aufheben', en:'to sublate', conj:'er hebt auf'}, {de:'dialektisieren', en:'to dialecticise', conj:'er dialektisiert'}, {de:'negieren', en:'to negate', conj:'er negiert'}], adjs: [{de:'dialektisch', en:'dialectical'}, {de:'teleologisch', en:'teleological'}, {de:'antinomisch', en:'antinomical'}, {de:'synthetisch', en:'synthetic'}], sentences: [{de:'Dialektische Aufhebung synthetisiert antinomische Widersprüche in teleologischen Entwicklungsprozessen.', en:'Dialectical sublation synthesises antinomical contradictions in teleological processes of development.'}, {de:'Das Telos dialektischer Prozesse negiert und synthetisiert Gegensätze auf höherer Ebene.', en:'The telos of dialectical processes negates and synthesises opposites at a higher level.'}] },
+    { nouns: [{de:'die Interkulturalität', en:'interculturality', note:'feminine'}, {de:'die Hybridität', en:'hybridity', note:'feminine'}, {de:'der Dritte Raum', en:'third space', note:'masculine'}, {de:'die Grenzziehung', en:'boundary drawing', note:'feminine'}, {de:'das Identitätsgefüge', en:'identity configuration', note:'neuter'}], verbs: [{de:'hybridisieren', en:'to hybridise', conj:'er hybridisiert'}, {de:'verhandeln', en:'to negotiate', conj:'er verhandelt'}, {de:'transkulturell agieren', en:'to act transculturally', conj:'er agiert'}, {de:'dekategorisieren', en:'to decategorise', conj:'er dekategorisiert'}], adjs: [{de:'hybrid', en:'hybrid'}, {de:'transkulturell', en:'transcultural'}, {de:'interkulturell', en:'intercultural'}, {de:'identitätspolitisch', en:'identity-political'}], sentences: [{de:'Hybride Identitätsgefüge entstehen im Dritten Raum transkultureller interkultureller Begegnungen.', en:'Hybrid identity configurations emerge in the third space of transcultural intercultural encounters.'}, {de:'Interkulturalität hybridisiert starre Grenzziehungen und dekategorisiert identitätspolitische Zuschreibungen.', en:'Interculturality hybridises rigid boundary drawings and decategorises identity-political attributions.'}] },
+  ],
+  // C2: 5 nouns, 4 verbs, 4 adj, 2 sentences — near-native mastery, highly specialised register
+  C2: [
+    { nouns: [{de:'die Aporie', en:'aporia', note:'feminine'}, {de:'die Antinomie', en:'antinomy', note:'feminine'}, {de:'das Paralogismus', en:'paralogism', note:'neuter'}, {de:'die Reductio ad absurdum', en:'reductio ad absurdum', note:'feminine'}, {de:'die Prämisse', en:'premise', note:'feminine'}], verbs: [{de:'falsifizieren', en:'to falsify', conj:'er falsifiziert'}, {de:'verifizieren', en:'to verify', conj:'er verifiziert'}, {de:'deduzieren', en:'to deduce', conj:'er deduziert'}, {de:'widerlegen', en:'to refute', conj:'er widerlegt'}], adjs: [{de:'aporetisch', en:'aporetic'}, {de:'antinomisch', en:'antinomic'}, {de:'paralogisch', en:'paralogical'}, {de:'axiomatisch', en:'axiomatic'}], sentences: [{de:'Aporetische Antinomien widerlegen paralogische Schlussfolgerungen durch axiomatische Reductio ad absurdum.', en:'Aporetic antinomies refute paralogical conclusions through axiomatic reductio ad absurdum.'}, {de:'Die Prämissen deduzierter Argumente werden falsifiziert wenn sie antinomische Konsequenzen implizieren.', en:'The premises of deduced arguments are falsified when they imply antinomic consequences.'}] },
+    { nouns: [{de:'die Polyphonie', en:'polyphony', note:'feminine'}, {de:'die Heteroglossie', en:'heteroglossia', note:'feminine'}, {de:'der Chronotopos', en:'chronotope', note:'masculine'}, {de:'die Karnivalisierung', en:'carnivalisation', note:'feminine'}, {de:'das Dialogizität', en:'dialogism', note:'neuter'}], verbs: [{de:'dialogisieren', en:'to dialogise', conj:'er dialogisiert'}, {de:'karnivalisieren', en:'to carnivalise', conj:'er karnivalisiert'}, {de:'polyphonisieren', en:'to polyphonise', conj:'er polyphonisiert'}, {de:'heteroglossieren', en:'to heteroglossiate', conj:'er heteroglossiert'}], adjs: [{de:'polyphon', en:'polyphonic'}, {de:'heteroglossisch', en:'heteroglossic'}, {de:'chronotopisch', en:'chronotopic'}, {de:'dialogisch', en:'dialogic'}], sentences: [{de:'Polyphoner Diskurs dialogisiert heteroglossische Stimmen im chronotopischen Romanraum Bachtins.', en:"Polyphonic discourse dialogises heteroglossic voices in Bakhtin's chronotopic novelistic space."}, {de:'Karnivalisierung subvertiert monologische Autorität durch dialogische Polyphonie und heteroglossische Vielstimmigkeit.', en:'Carnivalisation subverts monological authority through dialogic polyphony and heteroglossic multi-voicedness.'}] },
+    { nouns: [{de:'die Sedimentierung', en:'sedimentation', note:'feminine'}, {de:'die Instituierung', en:'institution', note:'feminine'}, {de:'das Imaginäre', en:'the imaginary', note:'neuter'}, {de:'die Dislokation', en:'dislocation', note:'feminine'}, {de:'das Leere', en:'the empty signifier', note:'neuter'}], verbs: [{de:'sedimentieren', en:'to sediment', conj:'es sedimentiert'}, {de:'instituieren', en:'to institute', conj:'er instituiert'}, {de:'dislozieren', en:'to dislocate', conj:'er disloziert'}, {de:'hegemonisieren', en:'to hegemonise', conj:'er hegemonisiert'}], adjs: [{de:'sedimentiert', en:'sedimented'}, {de:'dislokatisch', en:'dislocatory'}, {de:'instituiert', en:'instituted'}, {de:'hegemonisiert', en:'hegemonised'}], sentences: [{de:'Politische Dislokation destabilisiert sedimentierte soziale Imaginäre und eröffnet Raum für Neuinstituierung.', en:'Political dislocation destabilises sedimented social imaginaries and opens space for new institution.'}, {de:'Hegemonisierte leere Signifikanten sedimentieren antagonistische Differenzen in instituierten Diskursfeldern.', en:'Hegemonised empty signifiers sediment antagonistic differences in instituted fields of discourse.'}] },
+    { nouns: [{de:'die Kontrafaktizität', en:'counterfactuality', note:'feminine'}, {de:'das Möglichkeitsgefüge', en:'possibility structure', note:'neuter'}, {de:'die Alternativwelt', en:'possible world', note:'feminine'}, {de:'die modale Logik', en:'modal logic', note:'feminine'}, {de:'die Zugänglichkeitsrelation', en:'accessibility relation', note:'feminine'}], verbs: [{de:'kontrafaktisch schlussfolgern', en:'to reason counterfactually', conj:'er schlussfolgert'}, {de:'modalisieren', en:'to modalise', conj:'er modalisiert'}, {de:'quantifizieren', en:'to quantify', conj:'er quantifiziert'}, {de:'transworld-identifizieren', en:'to identify across worlds', conj:'er identifiziert'}], adjs: [{de:'kontrafaktisch', en:'counterfactual'}, {de:'modal', en:'modal'}, {de:'zugänglich', en:'accessible'}, {de:'möglichkeitssensitiv', en:'possibility-sensitive'}], sentences: [{de:'Modale Logik quantifiziert über Alternativwelten durch kontrafaktisch definierte Zugänglichkeitsrelationen.', en:'Modal logic quantifies over possible worlds through counterfactually defined accessibility relations.'}, {de:'Kontrafaktisches Schlussfolgern modalisiert Möglichkeitsgefüge und identifiziert transworld Entitäten.', en:'Counterfactual reasoning modalises possibility structures and identifies transworld entities.'}] },
+    { nouns: [{de:'die Superdiversität', en:'superdiversity', note:'feminine'}, {de:'die Translanguaging-Praxis', en:'translanguaging practice', note:'feminine'}, {de:'das sprachliche Repertoire', en:'linguistic repertoire', note:'neuter'}, {de:'die Indexikalität', en:'indexicality', note:'feminine'}, {de:'die Sprachideologie', en:'language ideology', note:'feminine'}], verbs: [{de:'translanguagen', en:'to translanguage', conj:'er translanguagt'}, {de:'indexikalisieren', en:'to indexicalise', conj:'er indexikalisiert'}, {de:'ideologisieren', en:'to ideologise', conj:'er ideologisiert'}, {de:'repertoirisieren', en:'to repertoirise', conj:'er repertoirisiert'}], adjs: [{de:'superdivers', en:'superdiverse'}, {de:'translingual', en:'translingual'}, {de:'indexikal', en:'indexical'}, {de:'sprachideologisch', en:'language-ideological'}], sentences: [{de:'Superdiverse urbane Räume translanguagen sprachliche Repertoires und indexikalisieren soziale Identitäten.', en:'Superdiverse urban spaces translanguage linguistic repertoires and indexicalise social identities.'}, {de:'Sprachideologische Normen ideologisieren translinguales Repertoire und marginalisieren sprachliche Superdiversität.', en:'Language-ideological norms ideologise translingual repertoires and marginalise linguistic superdiversity.'}] },
+    { nouns: [{de:'die Autopoiesis', en:'autopoiesis', note:'feminine'}, {de:'die Systemdifferenzierung', en:'system differentiation', note:'feminine'}, {de:'die operative Geschlossenheit', en:'operative closure', note:'feminine'}, {de:'das Funktionssystem', en:'functional system', note:'neuter'}, {de:'die strukturelle Kopplung', en:'structural coupling', note:'feminine'}], verbs: [{de:'autopoietisch reproduzieren', en:'to autopoietically reproduce', conj:'es reproduziert'}, {de:'koppeln', en:'to couple', conj:'es koppelt'}, {de:'differenzieren', en:'to differentiate', conj:'es differenziert'}, {de:'beobachten', en:'to observe', conj:'es beobachtet'}], adjs: [{de:'autopoietisch', en:'autopoietic'}, {de:'operational geschlossen', en:'operationally closed'}, {de:'strukturell gekoppelt', en:'structurally coupled'}, {de:'funktional differenziert', en:'functionally differentiated'}], sentences: [{de:'Autopoietische Funktionssysteme reproduzieren sich operational geschlossen durch strukturelle Kopplung.', en:'Autopoietic functional systems reproduce themselves in an operationally closed manner through structural coupling.'}, {de:'Funktionale Differenzierung beobachtet Systemgrenzen und koppelt autopoietische Subsysteme strukturell.', en:'Functional differentiation observes system boundaries and structurally couples autopoietic subsystems.'}] },
+    { nouns: [{de:'die Reifikation', en:'reification', note:'feminine'}, {de:'die Verdinglichung', en:'thingification', note:'feminine'}, {de:'das falsche Bewusstsein', en:'false consciousness', note:'neuter'}, {de:'die Entfremdung', en:'alienation', note:'feminine'}, {de:'die Fetischisierung', en:'fetishisation', note:'feminine'}], verbs: [{de:'reifizieren', en:'to reify', conj:'er reifiziert'}, {de:'entfremden', en:'to alienate', conj:'er entfremdet'}, {de:'fetischisieren', en:'to fetishise', conj:'er fetischisiert'}, {de:'demystifizieren', en:'to demystify', conj:'er demystifiziert'}], adjs: [{de:'verdinglichend', en:'reifying'}, {de:'entfremdet', en:'alienated'}, {de:'fetischhaft', en:'fetishistic'}, {de:'ideologisch verschleiert', en:'ideologically veiled'}], sentences: [{de:'Kapitalistische Fetischisierung der Ware reifiziert soziale Verhältnisse und erzeugt ideologisch verschleierte Entfremdung.', en:'Capitalist fetishisation of the commodity reifies social relations and produces ideologically veiled alienation.'}, {de:'Verdinglichendes falsches Bewusstsein demystifiziert entfremdete Verhältnisse nicht sondern fetischisiert sie weiter.', en:'Reifying false consciousness does not demystify alienated relations but further fetishises them.'}] },
+    { nouns: [{de:'die Enunziation', en:'enunciation', note:'feminine'}, {de:'das Énoncé', en:'statement', note:'neuter'}, {de:'die diskursive Formation', en:'discursive formation', note:'feminine'}, {de:'der Aussageakt', en:'speech act of statement', note:'masculine'}, {de:'die Diskontinuität', en:'discontinuity', note:'feminine'}], verbs: [{de:'enunzieren', en:'to enunciate', conj:'er enunziert'}, {de:'formieren', en:'to form', conj:'er formiert'}, {de:'diskontinuieren', en:'to discontinue', conj:'es diskontinuiert'}, {de:'archivieren', en:'to archive', conj:'er archiviert'}], adjs: [{de:'enunziativ', en:'enunciative'}, {de:'diskursiv formiert', en:'discursively formed'}, {de:'diskontinuierlich', en:'discontinuous'}, {de:'archivisch', en:'archival'}], sentences: [{de:'Foucaultsche Enunziation archiviert diskontinuierliche Énoncés in diskursiv formierten Aussagepraktiken.', en:"Foucauldian enunciation archives discontinuous statements in discursively formed practices of statement."}, {de:'Diskursive Formationen enunzieren archivisch regulierte Aussageakte und produzieren diskontinuierliches Wissen.', en:'Discursive formations enunciate archivally regulated speech acts of statement and produce discontinuous knowledge.'}] },
+    { nouns: [{de:'die Ästhetisierung', en:'aestheticisation', note:'feminine'}, {de:'die Sinnlichkeit', en:'sensibility', note:'feminine'}, {de:'das Erhabene', en:'the sublime', note:'neuter'}, {de:'die Mimesis', en:'mimesis', note:'feminine'}, {de:'die Katharsis', en:'catharsis', note:'feminine'}], verbs: [{de:'ästhetisieren', en:'to aestheticise', conj:'er ästhetisiert'}, {de:'mimetisch darstellen', en:'to represent mimetically', conj:'er stellt dar'}, {de:'katharsisch wirken', en:'to have a cathartic effect', conj:'es wirkt'}, {de:'sublimieren', en:'to sublimate', conj:'er sublimiert'}], adjs: [{de:'ästhetisiert', en:'aestheticised'}, {de:'mimetisch', en:'mimetic'}, {de:'katharsisch', en:'cathartic'}, {de:'erhaben', en:'sublime'}], sentences: [{de:'Das Erhabene wirkt katharsisch auf die Sinnlichkeit und sublimiert ästhetisierte Erfahrungen.', en:'The sublime has a cathartic effect on sensibility and sublimates aestheticised experiences.'}, {de:'Mimetische Mimesis stellt ästhetisierte Wirklichkeit dar und löst katharsische Prozesse beim Rezipienten aus.', en:'Mimetic mimesis represents aestheticised reality and triggers cathartic processes in the recipient.'}] },
+    { nouns: [{de:'die Sprechakttheorie', en:'speech act theory', note:'feminine'}, {de:'die Illokution', en:'illocution', note:'feminine'}, {de:'die Perlokution', en:'perlocution', note:'feminine'}, {de:'die Lokution', en:'locution', note:'feminine'}, {de:'die Gelingensbedingung', en:'felicity condition', note:'feminine'}], verbs: [{de:'illokutionieren', en:'to perform an illocutionary act', conj:'er illokutioniert'}, {de:'perlokutionär bewirken', en:'to bring about perlocutionarily', conj:'er bewirkt'}, {de:'performieren', en:'to perform', conj:'er performiert'}, {de:'validieren', en:'to validate', conj:'er validiert'}], adjs: [{de:'illokutionär', en:'illocutionary'}, {de:'perlokutionär', en:'perlocutionary'}, {de:'performativ', en:'performative'}, {de:'gelingensbedingungsabhängig', en:'felicity-condition-dependent'}], sentences: [{de:'Sprechakttheoretisch performiert die Illokution gelingensbedingungsabhängige kommunikative Handlungen.', en:'In speech act theory, illocution performs felicity-condition-dependent communicative acts.'}, {de:'Perlokutionäre Wirkungen werden durch validierte illokutionäre Akte performativ bewirkt.', en:'Perlocutionary effects are performatively brought about through validated illocutionary acts.'}] },
+    { nouns: [{de:'die Praxeologie', en:'praxeology', note:'feminine'}, {de:'das Handlungsfeld', en:'field of practice', note:'neuter'}, {de:'das Kapital', en:'capital', note:'neuter'}, {de:'der Habitus', en:'habitus', note:'masculine'}, {de:'die Doxa', en:'doxa', note:'feminine'}], verbs: [{de:'inkorporieren', en:'to incorporate', conj:'er inkorporiert'}, {de:'akkumulieren', en:'to accumulate', conj:'er akkumuliert'}, {de:'reproduzieren', en:'to reproduce', conj:'er reproduziert'}, {de:'distinktiv wirken', en:'to operate distinctively', conj:'er wirkt'}], adjs: [{de:'praxeologisch', en:'praxeological'}, {de:'habitusbasiert', en:'habitus-based'}, {de:'kapitalreich', en:'capital-rich'}, {de:'doxisch', en:'doxic'}], sentences: [{de:'Bourdieus praxeologische Theorie analysiert wie Habitus Kapital inkorporiert und doxisch reproduziert.', en:"Bourdieu's praxeological theory analyses how habitus incorporates capital and reproduces it doxically."}, {de:'Kapitalreiche Akteure reproduzieren doxische Felder distinktiv und akkumulieren symbolisches Kapital habitusbasiert.', en:'Capital-rich actors reproduce doxic fields distinctively and accumulate symbolic capital habitus-based.'}] },
+    { nouns: [{de:'die Onto-Epistemologie', en:'onto-epistemology', note:'feminine'}, {de:'die Intra-Aktion', en:'intra-action', note:'feminine'}, {de:'das Phänomen', en:'phenomenon', note:'neuter'}, {de:'die Materialität', en:'materiality', note:'feminine'}, {de:'die Verschränkung', en:'entanglement', note:'feminine'}], verbs: [{de:'intra-agieren', en:'to intra-act', conj:'sie intra-agieren'}, {de:'verschränken', en:'to entangle', conj:'es verschränkt'}, {de:'materialisieren', en:'to materialise', conj:'es materialisiert'}, {de:'diffrakt analysieren', en:'to analyse diffractively', conj:'er analysiert'}], adjs: [{de:'onto-epistemologisch', en:'onto-epistemological'}, {de:'materiell-diskursiv', en:'material-discursive'}, {de:'verschränkt', en:'entangled'}, {de:'diffrakt', en:'diffractive'}], sentences: [{de:'Onto-Epistemologische Intra-Aktionen materialisieren Phänomene als materiell-diskursiv verschränkte Ereignisse.', en:'Onto-epistemological intra-actions materialise phenomena as material-discursively entangled events.'}, {de:'Barad diffrakt analysiert wie Materialität und Diskursivität untrennbar intra-agieren und sich verschränken.', en:'Barad diffractively analyses how materiality and discursivity intra-act and entangle in inseparable ways.'}] },
+    { nouns: [{de:'die Liminalität', en:'liminality', note:'feminine'}, {de:'die Schwellenerfahrung', en:'threshold experience', note:'feminine'}, {de:'der Übergangsritus', en:'rite of passage', note:'masculine'}, {de:'die Communitas', en:'communitas', note:'feminine'}, {de:'die Antistruktur', en:'anti-structure', note:'feminine'}], verbs: [{de:'transgredieren', en:'to transgress', conj:'er transgrediert'}, {de:'ritualisieren', en:'to ritualise', conj:'er ritualisiert'}, {de:'transformieren', en:'to transform', conj:'er transformiert'}, {de:'communitas bilden', en:'to form communitas', conj:'sie bilden'}], adjs: [{de:'liminal', en:'liminal'}, {de:'antistrukturell', en:'anti-structural'}, {de:'transgressiv', en:'transgressive'}, {de:'rituell transformativ', en:'ritually transformative'}], sentences: [{de:'Liminale Schwellenerfahrungen transgredieren antistrukturelle Grenzen und bilden rituelle Communitas.', en:'Liminal threshold experiences transgress anti-structural boundaries and form ritual communitas.'}, {de:'Übergangsriten ritualisieren transgressiv liminale Phasen und transformieren soziale Identitäten rituell transformativ.', en:'Rites of passage ritualise transgressive liminal phases and ritually-transformatively reshape social identities.'}] },
+    { nouns: [{de:'die Iterabilität', en:'iterability', note:'feminine'}, {de:'die Zitation', en:'citation', note:'feminine'}, {de:'die différance', en:'différance', note:'feminine'}, {de:'die Supplementarität', en:'supplementarity', note:'feminine'}, {de:'die Spur', en:'trace', note:'feminine'}], verbs: [{de:'iterieren', en:'to iterate', conj:'es iteriert'}, {de:'zitieren', en:'to cite', conj:'er zitiert'}, {de:'supplementieren', en:'to supplement', conj:'er supplementiert'}, {de:'dekonstruktiv lesen', en:'to read deconstructively', conj:'er liest'}], adjs: [{de:'iterabel', en:'iterable'}, {de:'supplementär', en:'supplementary'}, {de:'différantiel', en:'différantial'}, {de:'spurhaft', en:'trace-like'}], sentences: [{de:'Derridas différance zeigt wie iterabile Zitationen spurhafte Supplementarität in jedem Text erzeugen.', en:"Derrida's différance shows how iterable citations produce trace-like supplementarity in every text."}, {de:'Dekonstruktives Lesen supplementiert différantielle Spuren und iteriert die Supplementarität des Textes.', en:'Deconstructive reading supplements différantial traces and iterates the supplementarity of the text.'}] },
+    { nouns: [{de:'die Vulnerabilität', en:'vulnerability', note:'feminine'}, {de:'die Prekarität', en:'precarity', note:'feminine'}, {de:'die Betrauerbarkeit', en:'grievability', note:'feminine'}, {de:'das Subjektivierungsregime', en:'subjectivation regime', note:'neuter'}, {de:'die Interpellation', en:'interpellation', note:'feminine'}], verbs: [{de:'interpellieren', en:'to interpellate', conj:'er interpelliert'}, {de:'subjektivieren', en:'to subjectivate', conj:'er subjektiviert'}, {de:'betrauerbar machen', en:'to make grievable', conj:'er macht'}, {de:'prekarisieren', en:'to precarise', conj:'er prekarisiert'}], adjs: [{de:'vulnerabel', en:'vulnerable'}, {de:'prekarisiert', en:'precarised'}, {de:'betrauerbar', en:'grievable'}, {de:'interpelliert', en:'interpellated'}], sentences: [{de:'Subjektivierungsregime interpellieren vulnerabel prekarisierte Subjekte und definieren ihre Betrauerbarkeit.', en:'Subjectivation regimes interpellate vulnerably precarised subjects and define their grievability.'}, {de:'Butlers Theorie subjektiviert interpellierte Körper als prekarisiert betrauerbar oder nicht.', en:"Butler's theory subjectivates interpellated bodies as precarised and grievable or not."}] },
+  ],
 };
 
 const NAG_MESSAGES = [
@@ -764,8 +820,9 @@ function loadState() {
       history: s.history || [],
       seenIndex: s.seenIndex || {},
       testsPassed: s.testsPassed || {},
+      finalExamPassed: s.finalExamPassed || {},
     };
-  } catch { return { level:'A1', nagEnabled:false, nagTime:'09:00', hideTranslations:false, streak:0, lastLesson:null, history:[], seenIndex:{}, testsPassed:{} }; }
+  } catch { return { level:'A1', nagEnabled:false, nagTime:'09:00', hideTranslations:false, streak:0, lastLesson:null, history:[], seenIndex:{}, testsPassed:{}, finalExamPassed:{} }; }
 }
 
 function saveState(s) {
@@ -884,7 +941,18 @@ function renderLesson() {
     counterEl.innerHTML = `Lesson ${currentLessonIdx + 1} of ${pool.length}` + (nextLocked ? ` &nbsp;<span class="lock-badge">🔒 Test needed</span>` : retakeBtn);
   }
 
+  // Final exam banner — show if all mini-tests passed but final exam not yet taken
+  const finalExamBanner = allMiniTestsPassed() && !hasFinalExamPassed(state.level);
   let html = '';
+  if (finalExamBanner) {
+    html += `
+    <div class="final-exam-banner">
+      <div class="final-exam-banner-emoji">🏆</div>
+      <div class="final-exam-banner-title">${state.level} Level Exam Ready!</div>
+      <div class="final-exam-banner-sub">You've passed all 5 tests. Complete the 40-question Level Exam to unlock the next level.</div>
+      <button class="final-exam-banner-btn" onclick="startFinalExam('${state.level}')">Take Level Exam →</button>
+    </div>`
+  }
 
   // Nouns
   lesson.nouns.forEach(n => {
@@ -999,6 +1067,23 @@ function renderHistory() {
         <button class="history-test-retake" onclick="retakeTestFromHistory(${testIdx})">↺ Retake</button>
       </div>`;
     });
+
+    // Show final exam status
+    const finalPassed = hasFinalExamPassed(state.level);
+    const allPassed = allMiniTestsPassed();
+    if (allPassed) {
+      html += `<div class="history-test-row" style="${finalPassed ? '' : 'border-color: var(--accent);'}">
+        <div>
+          <div class="history-test-title" style="color:${finalPassed ? 'var(--accent2)' : 'var(--accent)'}">
+            ${finalPassed ? '✓' : '📝'} ${state.level} Level Exam
+          </div>
+          <div class="history-test-info">All 25 lessons · 40 questions · ${finalPassed ? 'Passed' : 'Required to advance'}</div>
+        </div>
+        <button class="history-test-retake" onclick="startFinalExam('${state.level}'); showScreen('quiz');">
+          ${finalPassed ? '↺ Retake' : 'Take exam →'}
+        </button>
+      </div>`;
+    }
   }
 
   // Show lesson history grouped by date
@@ -1034,9 +1119,27 @@ function retakeTestFromHistory(testIdx) {
 }
 
 function renderSettings() {
+  const LEVEL_ORDER = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+  const currentIdx = LEVEL_ORDER.indexOf(state.level);
+
+  // A level is unlocked only if ALL preceding levels have had their final exam passed
+  function isLevelUnlocked(level) {
+    const idx = LEVEL_ORDER.indexOf(level);
+    if (idx === 0) return true; // A1 always unlocked
+    for (let i = 0; i < idx; i++) {
+      if (!hasFinalExamPassed(LEVEL_ORDER[i])) return false;
+    }
+    return true;
+  }
+
   document.querySelectorAll('.level-pill').forEach(p => {
+    const unlocked = isLevelUnlocked(p.dataset.level);
     p.classList.toggle('active', p.dataset.level === state.level);
+    p.classList.toggle('locked', !unlocked);
+    p.title = unlocked ? '' : `Pass all exams up to ${LEVEL_ORDER[LEVEL_ORDER.indexOf(p.dataset.level) - 1]} to unlock`;
   });
+
+  document.getElementById('level-lock-hint').classList.remove('show');
   document.getElementById('nag-toggle').checked = state.nagEnabled;
   document.getElementById('nag-time').value = state.nagTime;
   document.getElementById('hide-toggle').checked = state.hideTranslations;
@@ -1187,6 +1290,69 @@ function buildQuiz(testIdx) {
   return shuffle(questions);
 }
 
+// Build 40-question final exam from ALL 25 lessons at a level
+function buildFinalExam(level) {
+  const pool = VOCAB[level];
+  const allNouns = pool.flatMap(l => l.nouns);
+  const allVerbs = pool.flatMap(l => l.verbs);
+  const allAdjs = pool.flatMap(l => l.adjs);
+  const allSentences = pool.flatMap(l => l.sentences);
+  const allWords = [...allNouns, ...allVerbs, ...allAdjs];
+  const allEn = allWords.map(w => w.en);
+
+  function makeWordQ(word, typeLabel) {
+    const distractors = shuffle(allEn.filter(e => e !== word.en)).slice(0, 3);
+    const options = shuffle([word.en, ...distractors]);
+    return { type: 'word', typeLabel, question: word.de, sub: word.conj || word.note || '', correct: word.en, options };
+  }
+
+  function makeSentenceQ(sentence) {
+    const otherEn = allSentences.filter(s => s.de !== sentence.de).map(s => s.en);
+    const distractors = shuffle(otherEn).slice(0, 3);
+    while (distractors.length < 3) distractors.push('—');
+    const options = shuffle([sentence.en, ...distractors]);
+    return { type: 'sentence', typeLabel: 'What does this mean in English?', question: sentence.de, sub: '', correct: sentence.en, options };
+  }
+
+  function makeArticleQ(noun) {
+    const parts = noun.de.split(' ');
+    const article = parts[0].toLowerCase();
+    const bareNoun = parts.slice(1).join(' ');
+    return { type: 'article', typeLabel: 'Choose the correct article', question: bareNoun, sub: `(${noun.en})`, correct: article, options: ['der', 'die', 'das'] };
+  }
+
+  const questions = [];
+  // 14 noun translation questions
+  shuffle(allNouns).slice(0, 14).forEach(n => questions.push(makeWordQ(n, 'Translate the noun')));
+  // 8 verb questions
+  shuffle(allVerbs).slice(0, 8).forEach(v => questions.push(makeWordQ(v, 'Translate the verb')));
+  // 6 adjective questions
+  shuffle(allAdjs).slice(0, 6).forEach(a => questions.push(makeWordQ(a, 'Translate the adjective')));
+  // 6 sentence questions
+  shuffle(allSentences).slice(0, 6).forEach(s => questions.push(makeSentenceQ(s)));
+  // 6 article questions
+  shuffle(allNouns).slice(0, 6).forEach(n => questions.push(makeArticleQ(n)));
+
+  return shuffle(questions);
+}
+
+// Has the user passed all 5 mini-tests at the current level?
+function allMiniTestsPassed() {
+  const pool = getPool();
+  const totalTests = Math.floor(pool.length / TEST_INTERVAL);
+  const passed = getTestState();
+  for (let i = 0; i < totalTests; i++) {
+    if (!passed.includes(i)) return false;
+  }
+  return true;
+}
+
+// Has the final exam for the current level been passed?
+function hasFinalExamPassed(level) {
+  if (!state.finalExamPassed) state.finalExamPassed = {};
+  return !!state.finalExamPassed[level || state.level];
+}
+
 // ── QUIZ STATE ────────────────────────────────────────────────────────────────
 
 let quizState = null; // { testIdx, questions, current, score, answers }
@@ -1205,38 +1371,73 @@ function startQuiz(testIdx, practiceMode = false) {
   renderQuiz();
 }
 
+function startFinalExam(level) {
+  quizState = {
+    testIdx: -1,
+    finalExam: true,
+    finalExamLevel: level || state.level,
+    questions: buildFinalExam(level || state.level),
+    current: 0,
+    score: 0,
+    answered: 0,
+    returnToLesson: currentLessonIdx,
+    practiceMode: false
+  };
+  showScreen('quiz');
+  renderQuiz();
+}
+
 function renderQuiz() {
   const el = document.getElementById('quiz-content');
   if (!quizState) return;
 
-  const { questions, current, score, answered, testIdx } = quizState;
+  const { questions, current, score, answered, testIdx, finalExam, finalExamLevel } = quizState;
   const total = questions.length;
 
   // Show result screen
   if (current >= total) {
     const pct = Math.round((score / total) * 100);
     const passed = pct >= 90;
+
+    let title, subtitle, msg, btnLabel;
+    if (finalExam) {
+      title = finalExam ? `${finalExamLevel} Level Exam` : `Test ${testIdx + 1}`;
+      subtitle = passed ? 'Exam passed!' : 'Exam failed';
+      msg = passed
+        ? `Outstanding! You've mastered ${finalExamLevel}. You can now advance to the next level in Settings.`
+        : 'You need 90% to pass the Level Exam. Review your lessons and try again.';
+      btnLabel = passed ? 'Continue →' : 'Review lessons';
+    } else {
+      title = `Test ${testIdx + 1}`;
+      subtitle = passed ? 'Passed!' : 'Not quite...';
+      msg = quizState.practiceMode
+        ? (passed ? 'Great practice run! Your pass status is unchanged.' : 'Keep practising — you will get there!')
+        : (passed ? 'You passed! The next 5 lessons are now unlocked.' : 'You need 90% to pass. Go back and review the lessons, then try again.');
+      btnLabel = passed ? 'Continue →' : (quizState.practiceMode ? 'Back to lessons' : 'Review lessons');
+    }
+
     el.innerHTML = `
       <div class="quiz-result">
         <div class="quiz-result-emoji">${passed ? '🎉' : '😓'}</div>
         <div class="quiz-result-title">${passed ? 'Ausgezeichnet!' : 'Nicht ganz...'}</div>
         <div class="quiz-result-score">${score} / ${total} correct — ${pct}%</div>
-        <div class="quiz-result-msg">${quizState.practiceMode
-          ? (passed ? 'Great practice run! Your pass status is unchanged.' : 'Keep practising — you will get there!')
-          : (passed ? 'You passed! The next 5 lessons are now unlocked.' : 'You need 90% to pass. Go back and review the lessons, then try again.')
-        }</div>
-        <button class="quiz-result-btn" onclick="finishQuiz(${passed})">${passed ? 'Continue →' : (quizState.practiceMode ? 'Back to lessons' : 'Review lessons')}</button>
+        <div class="quiz-result-msg">${msg}</div>
+        <button class="quiz-result-btn" onclick="finishQuiz(${passed})">${btnLabel}</button>
       </div>`;
     return;
   }
 
   const q = questions[current];
   const progressPct = Math.round((current / total) * 100);
+  const headerTitle = finalExam ? `${finalExamLevel} Level Exam` : `Test ${testIdx + 1}`;
+  const headerSub = finalExam
+    ? `All 25 lessons · 40 questions · Pass with 90%`
+    : `Lessons ${testIdx * 5 + 1}–${testIdx * 5 + 5} · Pass with 90%`;
 
   el.innerHTML = `
     <div class="quiz-header">
-      <div class="quiz-title">Test ${testIdx + 1}</div>
-      <div class="quiz-subtitle">Lessons ${testIdx * 5 + 1}–${testIdx * 5 + 5} · Pass with 90%</div>
+      <div class="quiz-title">${headerTitle}</div>
+      <div class="quiz-subtitle">${headerSub}</div>
       <div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:${progressPct}%"></div></div>
       <div class="quiz-progress-label">${current} / ${total}</div>
     </div>
@@ -1291,6 +1492,20 @@ function nextQuizQuestion() {
 function finishQuiz(passed) {
   const practice = quizState.practiceMode;
   const testIdx = quizState.testIdx;
+  const isFinalExam = quizState.finalExam;
+  const finalExamLevel = quizState.finalExamLevel;
+
+  if (isFinalExam) {
+    if (passed) {
+      if (!state.finalExamPassed) state.finalExamPassed = {};
+      state.finalExamPassed[finalExamLevel] = true;
+      saveState(state);
+    }
+    quizState = null;
+    showScreen('today');
+    renderLesson();
+    return;
+  }
 
   if (passed && !practice) {
     if (!state.testsPassed) state.testsPassed = {};
@@ -1299,13 +1514,23 @@ function finishQuiz(passed) {
       state.testsPassed[state.level].push(testIdx);
     }
     saveState(state);
+
+    // Check if all mini-tests for this level are now passed → trigger final exam
+    if (allMiniTestsPassed() && !hasFinalExamPassed(state.level)) {
+      quizState = null;
+      // Small delay so user sees the pass confirmation before exam starts
+      setTimeout(() => startFinalExam(state.level), 400);
+      showScreen('today');
+      renderLesson();
+      return;
+    }
+
     currentLessonIdx = testIdx * TEST_INTERVAL + TEST_INTERVAL;
     if (currentLessonIdx >= getPool().length) currentLessonIdx = 0;
     quizState = null;
     showScreen('today');
     renderLesson();
   } else if (practice) {
-    // Practice retake — just go back to today, no changes to pass status
     quizState = null;
     showScreen('today');
     renderLesson();
@@ -1347,7 +1572,7 @@ async function initServiceWorker() {
     // Re-schedule on every app open in case SW was killed
     syncNotificationSchedule();
   } catch(e) {
-    console.warn('SW registration failed:', e);
+    // Silently ignore — common on iOS when not installed to Home Screen
   }
 }
 
@@ -1413,7 +1638,28 @@ function showScreen(name) {
 // ── SETTINGS SAVE ────────────────────────────────────────────────────────────
 
 function saveSettings() {
+  const LEVEL_ORDER = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
   const newLevel = document.querySelector('.level-pill.active')?.dataset.level || 'A1';
+
+  // A level is unlocked only if ALL preceding levels have had their final exam passed
+  function isLevelUnlocked(level) {
+    const idx = LEVEL_ORDER.indexOf(level);
+    if (idx === 0) return true;
+    for (let i = 0; i < idx; i++) {
+      if (!hasFinalExamPassed(LEVEL_ORDER[i])) return false;
+    }
+    return true;
+  }
+
+  if (!isLevelUnlocked(newLevel)) {
+    const hint = document.getElementById('level-lock-hint');
+    hint.classList.add('show');
+    document.querySelectorAll('.level-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.level === state.level);
+    });
+    return;
+  }
+
   if (newLevel !== state.level) { currentLessonIdx = 0; } // reset on level change
   state.level = newLevel;
   state.nagEnabled = document.getElementById('nag-toggle').checked;
@@ -1437,6 +1683,11 @@ document.querySelectorAll('.nav-btn').forEach(b => {
 
 document.querySelectorAll('.level-pill').forEach(p => {
   p.addEventListener('click', () => {
+    if (p.classList.contains('locked')) {
+      document.getElementById('level-lock-hint').classList.add('show');
+      return;
+    }
+    document.getElementById('level-lock-hint').classList.remove('show');
     document.querySelectorAll('.level-pill').forEach(x => x.classList.remove('active'));
     p.classList.add('active');
   });
