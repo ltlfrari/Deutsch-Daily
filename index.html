@@ -938,8 +938,20 @@ function renderLesson() {
 
 function doneLesson() {
   markLessonDone(currentLessonIdx);
+  // Auto-advance to next lesson if unlocked
+  const pool = getPool();
+  const next = (currentLessonIdx + 1) % pool.length;
+  if (next !== 0 && isLessonUnlocked(next)) {
+    currentLessonIdx = next;
+    const prev = state.seenIndex[state.level] || 0;
+    if (next + 1 > prev) {
+      state.seenIndex[state.level] = next + 1;
+      saveState(state);
+    }
+  }
   renderLesson();
   renderHistory();
+  document.getElementById('screen-today').scrollTop = 0;
 }
 
 function renderHistory() {
