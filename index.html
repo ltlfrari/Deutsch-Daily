@@ -501,6 +501,12 @@
   .quiz-result-btn { width: 100%; background: var(--accent); color: var(--bg); border: none; border-radius: var(--radius); padding: 16px; font-size: 16px; font-weight: 600; font-family: inherit; cursor: pointer; margin-bottom: 12px; }
   .lock-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--danger); color: #fff; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px; }
   .test-due-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--accent); color: var(--bg); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px; cursor: pointer; }
+  .retake-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--surface); border: 1px solid #333355; color: var(--muted); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px; cursor: pointer; }
+  .history-test-row { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, var(--card), #1e1e35); border-radius: var(--radius); padding: 14px 18px; margin-bottom: 10px; border: 1px solid #2a2a4a; }
+  .history-test-info { font-size: 13px; color: var(--muted); }
+  .history-test-title { font-size: 15px; font-weight: 600; color: var(--accent); margin-bottom: 3px; }
+  .history-test-retake { background: var(--surface); border: 1px solid #333355; color: var(--muted); font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 10px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .history-test-retake:active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -867,11 +873,15 @@ function renderLesson() {
   })(testIdx);
 
   const counterEl = document.getElementById('lesson-counter');
+  const prevTestIdx = blockNum - 1; // test that unlocked current block
+  const prevTestPassed = prevTestIdx >= 0 && passed.includes(prevTestIdx);
+
   if (testDue) {
     counterEl.innerHTML = `<span class="test-due-badge" onclick="startQuiz(${testIdx})">📝 Test ${testIdx + 1} ready!</span>`;
   } else {
     const nextLocked = !isLessonUnlocked(currentLessonIdx + 1) && currentLessonIdx + 1 < pool.length;
-    counterEl.innerHTML = `Lesson ${currentLessonIdx + 1} of ${pool.length}` + (nextLocked ? ` &nbsp;<span class="lock-badge">🔒 Test needed</span>` : '');
+    const retakeBtn = prevTestPassed ? ` &nbsp;<span class="retake-badge" onclick="startQuiz(${prevTestIdx}, true)">↺ Test ${prevTestIdx + 1}</span>` : '';
+    counterEl.innerHTML = `Lesson ${currentLessonIdx + 1} of ${pool.length}` + (nextLocked ? ` &nbsp;<span class="lock-badge">🔒 Test needed</span>` : retakeBtn);
   }
 
   let html = '';
@@ -963,30 +973,64 @@ function doneLesson() {
 function renderHistory() {
   const el = document.getElementById('history-content');
   const pool_all = VOCAB;
-  if (!state.history.length) {
+  const passed = getTestState();
+  const pool = pool_all[state.level];
+  const totalTests = Math.floor(pool.length / TEST_INTERVAL);
+
+  if (!state.history.length && !passed.length) {
     el.innerHTML = `<div class="history-empty"><span class="big">📚</span><span>No lessons yet — start today!</span></div>`;
     return;
   }
-  // Group by date
-  const byDate = {};
-  state.history.forEach(h => {
-    if (!byDate[h.date]) byDate[h.date] = [];
-    byDate[h.date].push(h);
-  });
-  el.innerHTML = Object.keys(byDate).map(date => {
-    const entries = byDate[date];
-    const words = entries.flatMap(h => {
-      const pool = pool_all[state.level];
-      const lesson = pool[h.lessonIdx % pool.length];
-      return lesson ? [lesson.nouns[0].de, lesson.verbs[0].de] : [];
+
+  let html = '';
+
+  // Show passed tests section
+  if (passed.length) {
+    html += `<div class="lesson-date" style="margin-top:8px;margin-bottom:12px">COMPLETED TESTS</div>`;
+    // Sort passed tests
+    [...passed].sort((a,b)=>a-b).forEach(testIdx => {
+      const blockStart = testIdx * TEST_INTERVAL + 1;
+      const blockEnd = (testIdx + 1) * TEST_INTERVAL;
+      html += `<div class="history-test-row">
+        <div>
+          <div class="history-test-title">✓ Test ${testIdx + 1}</div>
+          <div class="history-test-info">Lessons ${blockStart}–${blockEnd} · Passed</div>
+        </div>
+        <button class="history-test-retake" onclick="retakeTestFromHistory(${testIdx})">↺ Retake</button>
+      </div>`;
     });
-    return `<div class="history-day">
-      <div class="history-day-date">${date} · ${entries.length} lesson${entries.length > 1 ? 's' : ''}</div>
-      <div class="history-words">
-        ${words.map(w => `<div class="hw-chip">${w}</div>`).join('')}
-      </div>
-    </div>`;
-  }).join('');
+  }
+
+  // Show lesson history grouped by date
+  if (state.history.length) {
+    html += `<div class="lesson-date" style="margin-top:16px;margin-bottom:12px">LESSON HISTORY</div>`;
+    const byDate = {};
+    state.history.forEach(h => {
+      if (!byDate[h.date]) byDate[h.date] = [];
+      byDate[h.date].push(h);
+    });
+    html += Object.keys(byDate).map(date => {
+      const entries = byDate[date];
+      const words = entries.flatMap(h => {
+        const lesson = pool[h.lessonIdx % pool.length];
+        return lesson ? [lesson.nouns[0].de, lesson.verbs[0].de] : [];
+      });
+      return `<div class="history-day">
+        <div class="history-day-date">${date} · ${entries.length} lesson${entries.length > 1 ? 's' : ''}</div>
+        <div class="history-words">
+          ${words.map(w => `<div class="hw-chip">${w}</div>`).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  el.innerHTML = html;
+}
+
+function retakeTestFromHistory(testIdx) {
+  // Switch to today tab first then launch quiz in practice mode
+  showScreen('today');
+  startQuiz(testIdx, true); // true = practice mode, won't affect pass status
 }
 
 function renderSettings() {
@@ -1145,14 +1189,15 @@ function buildQuiz(testIdx) {
 
 let quizState = null; // { testIdx, questions, current, score, answers }
 
-function startQuiz(testIdx) {
+function startQuiz(testIdx, practiceMode = false) {
   quizState = {
     testIdx,
     questions: buildQuiz(testIdx),
     current: 0,
     score: 0,
     answered: 0,
-    returnToLesson: currentLessonIdx
+    returnToLesson: currentLessonIdx,
+    practiceMode
   };
   showScreen('quiz');
   renderQuiz();
@@ -1174,11 +1219,11 @@ function renderQuiz() {
         <div class="quiz-result-emoji">${passed ? '🎉' : '😓'}</div>
         <div class="quiz-result-title">${passed ? 'Ausgezeichnet!' : 'Nicht ganz...'}</div>
         <div class="quiz-result-score">${score} / ${total} correct — ${pct}%</div>
-        <div class="quiz-result-msg">${passed
-          ? 'You passed! The next 5 lessons are now unlocked.'
-          : 'You need 90% to pass. Go back and review the lessons, then try again.'
+        <div class="quiz-result-msg">${quizState.practiceMode
+          ? (passed ? 'Great practice run! Your pass status is unchanged.' : 'Keep practising — you'll get there!')
+          : (passed ? 'You passed! The next 5 lessons are now unlocked.' : 'You need 90% to pass. Go back and review the lessons, then try again.')
         }</div>
-        <button class="quiz-result-btn" onclick="finishQuiz(${passed})">${passed ? 'Continue →' : 'Review lessons'}</button>
+        <button class="quiz-result-btn" onclick="finishQuiz(${passed})">${passed ? 'Continue →' : (quizState.practiceMode ? 'Back to lessons' : 'Review lessons')}</button>
       </div>`;
     return;
   }
@@ -1242,22 +1287,29 @@ function nextQuizQuestion() {
 }
 
 function finishQuiz(passed) {
-  if (passed) {
-    // Record pass
+  const practice = quizState.practiceMode;
+  const testIdx = quizState.testIdx;
+
+  if (passed && !practice) {
     if (!state.testsPassed) state.testsPassed = {};
     if (!state.testsPassed[state.level]) state.testsPassed[state.level] = [];
-    if (!state.testsPassed[state.level].includes(quizState.testIdx)) {
-      state.testsPassed[state.level].push(quizState.testIdx);
+    if (!state.testsPassed[state.level].includes(testIdx)) {
+      state.testsPassed[state.level].push(testIdx);
     }
     saveState(state);
-    currentLessonIdx = quizState.testIdx * TEST_INTERVAL + TEST_INTERVAL; // jump to first lesson of next block
+    currentLessonIdx = testIdx * TEST_INTERVAL + TEST_INTERVAL;
     if (currentLessonIdx >= getPool().length) currentLessonIdx = 0;
     quizState = null;
     showScreen('today');
     renderLesson();
+  } else if (practice) {
+    // Practice retake — just go back to today, no changes to pass status
+    quizState = null;
+    showScreen('today');
+    renderLesson();
   } else {
-    // Go back to first lesson of the block to review
-    currentLessonIdx = quizState.testIdx * TEST_INTERVAL;
+    // Failed — go back to first lesson of block to review
+    currentLessonIdx = testIdx * TEST_INTERVAL;
     quizState = null;
     showScreen('today');
     renderLesson();
