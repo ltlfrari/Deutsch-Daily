@@ -848,7 +848,7 @@ function renderHistory() {
     const words = entries.flatMap(h => {
       const pool = pool_all[state.level];
       const lesson = pool[h.lessonIdx % pool.length];
-      return lesson ? [lesson.nouns[0].de, lesson.verb.de] : [];
+      return lesson ? [lesson.nouns[0].de, lesson.verbs[0].de] : [];
     });
     return `<div class="history-day">
       <div class="history-day-date">${date} · ${entries.length} lesson${entries.length > 1 ? 's' : ''}</div>
@@ -881,28 +881,62 @@ function showNagBanner() {
   banner.classList.add('show');
 }
 
-// ── NOTIFICATIONS ────────────────────────────────────────────────────────────
+// ── SERVICE WORKER & NOTIFICATIONS ──────────────────────────────────────────
 
-function scheduleNotification() {
-  if (!state.nagEnabled) return;
-  if (!('Notification' in window)) return;
-  if (Notification.permission !== 'granted') return;
+let swReg = null;
 
-  // For a PWA we can only fire if a Service Worker is registered
-  // We fire a simulated check; real scheduling needs SW
-  // We'll show a banner instead as fallback
+async function initServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    swReg = await navigator.serviceWorker.register('./sw.js');
+    await navigator.serviceWorker.ready;
+    // Re-schedule on every app open in case SW was killed
+    syncNotificationSchedule();
+  } catch(e) {
+    console.warn('SW registration failed:', e);
+  }
+}
+
+function syncNotificationSchedule() {
+  if (!swReg || !swReg.active) return;
+  if (!state.nagEnabled || Notification.permission !== 'granted') {
+    swReg.active.postMessage({ type: 'CANCEL_NOTIFICATION' });
+    return;
+  }
+  const msgs = [
+    "Zeit für dein Deutsch! 🇩🇪 Just a few minutes keeps the language alive.",
+    "Noch nicht gelernt? Your streak is waiting. Auf geht's!",
+    "Locals notice when you try. Open Deutsch Daily — zwei Minuten reichen!",
+    "Your future self in Germany thanks you. Ein bisschen Deutsch, bitte!",
+    "Language is muscle memory. Flex it today.",
+    "Kein Stress. Two nouns, a verb, an adjective. 60 seconds max.",
+    "Nicht vergessen! The Marktplatz awaits.",
+  ];
+  const msg = msgs[new Date().getDay() % msgs.length];
+  swReg.active.postMessage({
+    type: 'SCHEDULE_NOTIFICATION',
+    time: state.nagTime,
+    message: msg
+  });
 }
 
 async function requestNotifPermission() {
   if (!('Notification' in window)) {
-    alert('Notifications are not supported in this browser.\nAdd this page to your Home Screen and open from there for best results.');
+    alert('Notifications are not supported.\nMake sure you have added this app to your Home Screen and are opening it from there.');
     return;
   }
+  if (!('serviceWorker' in navigator)) {
+    alert('Service Workers are not supported in this browser.\nAdd this page to your Home Screen first, then try again.');
+    return;
+  }
+
   const perm = await Notification.requestPermission();
   if (perm === 'granted') {
-    alert('Notifications enabled! 🎉\nFor daily reminders on iOS, add this page to your Home Screen.');
+    await initServiceWorker();
+    syncNotificationSchedule();
+    alert('Notifications enabled! ✅\nYou\'ll get a daily reminder at your chosen time.\n\nNote: on iOS the app must have been opened recently for notifications to fire.');
   } else {
-    alert('Permission denied. You can enable it later in Safari settings.');
+    alert('Permission denied.\nYou can enable notifications later in Settings → Safari → [this site] → Notifications.');
   }
 }
 
@@ -936,6 +970,7 @@ function saveSettings() {
   // flash confirmation
   const btn = document.getElementById('save-settings');
   btn.textContent = '✓ Saved!';
+  syncNotificationSchedule();
   setTimeout(() => { btn.textContent = 'Save Settings'; showScreen('today'); }, 900);
 }
 
@@ -960,6 +995,7 @@ document.getElementById('btn-notif').addEventListener('click', requestNotifPermi
 renderLesson();
 showNagBanner();
 renderSettings();
+initServiceWorker();
 </script>
 </body>
 </html>
