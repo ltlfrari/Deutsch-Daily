@@ -1129,7 +1129,9 @@ function buildQuiz(testIdx) {
   }
 
   function makeWordQ(word, typeLabel) {
-    const distractors = getDistractors(word.en, allEn, 3);
+    // Show German word, pick correct English translation
+    const allEnPool = allWords.map(w => w.en);
+    const distractors = shuffle(allEnPool.filter(e => e !== word.en)).slice(0, 3);
     const options = shuffle([word.en, ...distractors]);
     return { type: 'word', typeLabel, question: word.de, sub: word.conj || word.note || '', correct: word.en, options };
   }
@@ -1141,7 +1143,7 @@ function buildQuiz(testIdx) {
     // Pad with generic distractors if not enough
     while (distractors.length < 3) distractors.push('—');
     const options = shuffle([sentence.en, ...distractors]);
-    return { type: 'sentence', typeLabel: 'Translate the sentence', question: sentence.de, sub: '', correct: sentence.en, options };
+    return { type: 'sentence', typeLabel: 'What does this mean in English?', question: sentence.de, sub: '', correct: sentence.en, options };
   }
 
   const questions = [];
