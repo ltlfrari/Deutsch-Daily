@@ -430,6 +430,37 @@
   ::-webkit-scrollbar { width: 3px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #333355; border-radius: 3px; }
+
+  /* ── QUIZ ── */
+  .quiz-header { margin-bottom: 20px; }
+  .quiz-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--accent); margin-bottom: 4px; }
+  .quiz-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+  .quiz-progress-bar { height: 4px; background: var(--card); border-radius: 2px; overflow: hidden; margin-bottom: 4px; }
+  .quiz-progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width .3s; }
+  .quiz-progress-label { font-size: 11px; color: var(--muted); text-align: right; }
+  .quiz-question-card { background: var(--card); border-radius: var(--radius); padding: 22px; margin-bottom: 16px; }
+  .quiz-q-type { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--accent2); margin-bottom: 10px; }
+  .quiz-q-text { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--text); line-height: 1.2; }
+  .quiz-q-sub { font-size: 13px; color: var(--muted); margin-top: 6px; font-style: italic; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option { background: var(--card); border: 1.5px solid #2a2a4a; border-radius: 14px; padding: 14px 18px; font-size: 15px; color: var(--text); text-align: left; cursor: pointer; font-family: inherit; transition: border-color .15s, background .15s; line-height: 1.4; }
+  .quiz-option:active { background: var(--surface); }
+  .quiz-option.correct { border-color: var(--accent2); background: rgba(129,178,154,0.15); color: var(--accent2); pointer-events: none; }
+  .quiz-option.wrong { border-color: var(--danger); background: rgba(224,122,95,0.15); color: var(--danger); pointer-events: none; }
+  .quiz-option.disabled { opacity: 0.45; pointer-events: none; }
+  .quiz-feedback { font-size: 13px; font-weight: 600; margin-top: 10px; min-height: 20px; text-align: center; }
+  .quiz-feedback.ok { color: var(--accent2); }
+  .quiz-feedback.bad { color: var(--danger); }
+  .quiz-next-btn { width: 100%; margin-top: 16px; background: var(--accent); color: var(--bg); border: none; border-radius: var(--radius); padding: 14px; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; display: none; }
+  .quiz-next-btn.show { display: block; }
+  .quiz-result { display: flex; flex-direction: column; align-items: center; padding: 30px 10px; text-align: center; }
+  .quiz-result-emoji { font-size: 64px; margin-bottom: 16px; }
+  .quiz-result-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--accent); margin-bottom: 8px; }
+  .quiz-result-score { font-size: 16px; color: var(--text); margin-bottom: 6px; }
+  .quiz-result-msg { font-size: 14px; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+  .quiz-result-btn { width: 100%; background: var(--accent); color: var(--bg); border: none; border-radius: var(--radius); padding: 16px; font-size: 16px; font-weight: 600; font-family: inherit; cursor: pointer; margin-bottom: 12px; }
+  .lock-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--danger); color: #fff; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px; }
+  .test-due-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--accent); color: var(--bg); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -462,6 +493,11 @@
       <button class="nav-arrow" id="btn-next" onclick="navigateLesson(1)">›</button>
     </div>
     <div id="lesson-content"></div>
+  </div>
+
+  <!-- ── QUIZ ── -->
+  <div class="screen" id="screen-quiz">
+    <div id="quiz-content"></div>
   </div>
 
   <!-- ── HISTORY ── -->
@@ -672,11 +708,12 @@ function loadState() {
       nagTime: s.nagTime || '09:00',
       hideTranslations: s.hideTranslations ?? false,
       streak: s.streak || 0,
-      lastLesson: s.lastLesson || null,   // 'YYYY-MM-DD'
-      history: s.history || [],            // [{date, lesson}]
-      seenIndex: s.seenIndex || {},        // {level: nextIndex}
+      lastLesson: s.lastLesson || null,
+      history: s.history || [],
+      seenIndex: s.seenIndex || {},
+      testsPassed: s.testsPassed || {},
     };
-  } catch { return { level:'A1', nagEnabled:false, nagTime:'09:00', hideTranslations:false, streak:0, lastLesson:null, history:[], seenIndex:{} }; }
+  } catch { return { level:'A1', nagEnabled:false, nagTime:'09:00', hideTranslations:false, streak:0, lastLesson:null, history:[], seenIndex:{}, testsPassed:{} }; }
 }
 
 function saveState(s) {
@@ -730,9 +767,18 @@ function markLessonDone(idx) {
 
 function navigateLesson(dir) {
   const pool = getPool();
-  currentLessonIdx = (currentLessonIdx + dir + pool.length) % pool.length;
+  let next = (currentLessonIdx + dir + pool.length) % pool.length;
+  if (!isLessonUnlocked(next)) {
+    // Find the test that locks it
+    const blockNum = Math.floor(next / TEST_INTERVAL);
+    const testIdx = blockNum - 1;
+    if (confirm('You need to pass Test ' + (testIdx + 1) + ' to unlock these lessons. Take the test now?')) {
+      startQuiz(testIdx);
+    }
+    return;
+  }
+  currentLessonIdx = next;
   renderLesson();
-  // scroll lesson content back to top
   document.getElementById('screen-today').scrollTop = 0;
 }
 
@@ -756,8 +802,26 @@ function renderLesson() {
   document.getElementById('today-date').textContent =
     d.toLocaleDateString('en-GB', {weekday:'long', year:'numeric', month:'long', day:'numeric'}).toUpperCase();
 
-  // nav counter
-  document.getElementById('lesson-counter').textContent = `Lesson ${currentLessonIdx + 1} of ${pool.length}`;
+  // nav counter + test badge
+  const blockNum = Math.floor(currentLessonIdx / TEST_INTERVAL);
+  const testIdx = blockNum; // test after this block
+  const passed = getTestState();
+  const totalTests = Math.floor(pool.length / TEST_INTERVAL);
+  // Is a test due after this block? (blockNum < totalTests and not yet passed)
+  const testDue = (testIndex => {
+    if (testIndex >= totalTests) return false;
+    if (passed.includes(testIndex)) return false;
+    // Test is due if we've completed the block (currentLessonIdx >= (testIndex+1)*TEST_INTERVAL - 1)
+    return currentLessonIdx >= (testIndex + 1) * TEST_INTERVAL - 1;
+  })(testIdx);
+
+  const counterEl = document.getElementById('lesson-counter');
+  if (testDue) {
+    counterEl.innerHTML = `<span class="test-due-badge" onclick="startQuiz(${testIdx})">📝 Test ${testIdx + 1} ready!</span>`;
+  } else {
+    const nextLocked = !isLessonUnlocked(currentLessonIdx + 1) && currentLessonIdx + 1 < pool.length;
+    counterEl.innerHTML = `Lesson ${currentLessonIdx + 1} of ${pool.length}` + (nextLocked ? ` &nbsp;<span class="lock-badge">🔒 Test needed</span>` : '');
+  }
 
   let html = '';
 
@@ -881,6 +945,248 @@ function showNagBanner() {
   banner.classList.add('show');
 }
 
+// ── QUIZ LOGIC ───────────────────────────────────────────────────────────────
+
+// Tests occur after lessons 5,10,15,20,25 (indices 4,9,14,19,24)
+const TEST_INTERVAL = 5;
+
+function getTestState() {
+  // testsPassed[level] = array of test indices passed e.g. [0,1] = passed tests after lesson 5 and 10
+  if (!state.testsPassed) state.testsPassed = {};
+  if (!state.testsPassed[state.level]) state.testsPassed[state.level] = [];
+  return state.testsPassed[state.level];
+}
+
+// Which test index (0-based) is due next? e.g. 0 = after lesson 5
+function nextTestDue() {
+  const passed = getTestState();
+  const pool = getPool();
+  const totalTests = Math.floor(pool.length / TEST_INTERVAL);
+  for (let i = 0; i < totalTests; i++) {
+    if (!passed.includes(i)) return i;
+  }
+  return null; // all passed
+}
+
+// Is lesson index unlocked?
+function isLessonUnlocked(idx) {
+  const blockNum = Math.floor(idx / TEST_INTERVAL); // which block of 5 (0-based)
+  if (blockNum === 0) return true; // first 5 always open
+  const passed = getTestState();
+  // Need to have passed test (blockNum-1) to access this block
+  return passed.includes(blockNum - 1);
+}
+
+// Is a test due right now? (completed 5 lessons but haven't passed the test yet)
+function isTestDue() {
+  const passed = getTestState();
+  const pool = getPool();
+  const totalTests = Math.floor(pool.length / TEST_INTERVAL);
+  for (let i = 0; i < totalTests; i++) {
+    if (!passed.includes(i)) {
+      // Test i is due if lessons (i*5) through (i*5+4) have all been studied
+      const blockStart = i * TEST_INTERVAL;
+      const blockEnd = blockStart + TEST_INTERVAL - 1;
+      // Check if any lesson in this block has been studied today or ever
+      // We just check if they've navigated to lesson blockEnd (seen it)
+      // Simpler: test is available as soon as first 5 lessons of block are accessible
+      return i; // return test index
+    }
+  }
+  return null;
+}
+
+// Shuffle array
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Build 8 quiz questions from a block of 5 lessons
+function buildQuiz(testIdx) {
+  const pool = getPool();
+  const blockStart = testIdx * TEST_INTERVAL;
+  const lessons = pool.slice(blockStart, blockStart + TEST_INTERVAL);
+
+  // Collect all vocab from the block for distractors
+  const allNouns = lessons.flatMap(l => l.nouns);
+  const allVerbs = lessons.flatMap(l => l.verbs);
+  const allAdjs = lessons.flatMap(l => l.adjs);
+  const allSentences = lessons.flatMap(l => l.sentences);
+  const allWords = [...allNouns, ...allVerbs, ...allAdjs];
+
+  // Pool of all english translations for distractors
+  const allEn = allWords.map(w => w.en);
+
+  function getDistractors(correctEn, pool, count) {
+    const others = pool.filter(e => e !== correctEn);
+    return shuffle(others).slice(0, count);
+  }
+
+  function makeWordQ(word, typeLabel) {
+    const distractors = getDistractors(word.en, allEn, 3);
+    const options = shuffle([word.en, ...distractors]);
+    return { type: 'word', typeLabel, question: word.de, sub: word.conj || word.note || '', correct: word.en, options };
+  }
+
+  function makeSentenceQ(sentence) {
+    // Use other sentences as distractors
+    const otherSentences = allSentences.filter(s => s.de !== sentence.de).map(s => s.en);
+    const distractors = shuffle(otherSentences).slice(0, 3);
+    // Pad with generic distractors if not enough
+    while (distractors.length < 3) distractors.push('—');
+    const options = shuffle([sentence.en, ...distractors]);
+    return { type: 'sentence', typeLabel: 'Translate the sentence', question: sentence.de, sub: '', correct: sentence.en, options };
+  }
+
+  const questions = [];
+
+  // 3 noun questions
+  const nounPick = shuffle(allNouns).slice(0, 3);
+  nounPick.forEach(n => questions.push(makeWordQ(n, 'Translate the noun')));
+
+  // 2 verb questions
+  const verbPick = shuffle(allVerbs).slice(0, 2);
+  verbPick.forEach(v => questions.push(makeWordQ(v, 'Translate the verb')));
+
+  // 1 adjective question
+  const adjPick = shuffle(allAdjs).slice(0, 1);
+  adjPick.forEach(a => questions.push(makeWordQ(a, 'Translate the adjective')));
+
+  // 2 sentence questions
+  const sentPick = shuffle(allSentences).slice(0, 2);
+  sentPick.forEach(s => questions.push(makeSentenceQ(s)));
+
+  return shuffle(questions);
+}
+
+// ── QUIZ STATE ────────────────────────────────────────────────────────────────
+
+let quizState = null; // { testIdx, questions, current, score, answers }
+
+function startQuiz(testIdx) {
+  quizState = {
+    testIdx,
+    questions: buildQuiz(testIdx),
+    current: 0,
+    score: 0,
+    answered: 0,
+    returnToLesson: currentLessonIdx
+  };
+  showScreen('quiz');
+  renderQuiz();
+}
+
+function renderQuiz() {
+  const el = document.getElementById('quiz-content');
+  if (!quizState) return;
+
+  const { questions, current, score, answered, testIdx } = quizState;
+  const total = questions.length;
+
+  // Show result screen
+  if (current >= total) {
+    const pct = Math.round((score / total) * 100);
+    const passed = pct >= 90;
+    el.innerHTML = `
+      <div class="quiz-result">
+        <div class="quiz-result-emoji">${passed ? '🎉' : '😓'}</div>
+        <div class="quiz-result-title">${passed ? 'Ausgezeichnet!' : 'Nicht ganz...'}</div>
+        <div class="quiz-result-score">${score} / ${total} correct — ${pct}%</div>
+        <div class="quiz-result-msg">${passed
+          ? 'You passed! The next 5 lessons are now unlocked.'
+          : 'You need 90% to pass. Go back and review the lessons, then try again.'
+        }</div>
+        <button class="quiz-result-btn" onclick="finishQuiz(${passed})">${passed ? 'Continue →' : 'Review lessons'}</button>
+      </div>`;
+    return;
+  }
+
+  const q = questions[current];
+  const progressPct = Math.round((current / total) * 100);
+
+  el.innerHTML = `
+    <div class="quiz-header">
+      <div class="quiz-title">Test ${testIdx + 1}</div>
+      <div class="quiz-subtitle">Lessons ${testIdx * 5 + 1}–${testIdx * 5 + 5} · Pass with 90%</div>
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:${progressPct}%"></div></div>
+      <div class="quiz-progress-label">${current} / ${total}</div>
+    </div>
+    <div class="quiz-question-card">
+      <div class="quiz-q-type">${q.typeLabel}</div>
+      <div class="quiz-q-text">${q.question}</div>
+      ${q.sub ? `<div class="quiz-q-sub">${q.sub}</div>` : ''}
+    </div>
+    <div class="quiz-options">
+      ${q.options.map((opt, i) => `
+        <button class="quiz-option" onclick="answerQuiz(${i})">${opt}</button>
+      `).join('')}
+    </div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+    <button class="quiz-next-btn" id="quiz-next" onclick="nextQuizQuestion()">
+      ${current + 1 < total ? 'Next question →' : 'See results →'}
+    </button>`;
+}
+
+function answerQuiz(optionIdx) {
+  const q = quizState.questions[quizState.current];
+  const selected = q.options[optionIdx];
+  const correct = selected === q.correct;
+
+  if (correct) quizState.score++;
+
+  // Mark buttons
+  const buttons = document.querySelectorAll('.quiz-option');
+  buttons.forEach((btn, i) => {
+    if (q.options[i] === q.correct) {
+      btn.classList.add('correct');
+    } else if (i === optionIdx && !correct) {
+      btn.classList.add('wrong');
+    } else {
+      btn.classList.add('disabled');
+    }
+  });
+
+  const fb = document.getElementById('quiz-feedback');
+  fb.textContent = correct ? '✓ Richtig!' : `✗ The answer was: ${q.correct}`;
+  fb.className = 'quiz-feedback ' + (correct ? 'ok' : 'bad');
+
+  document.getElementById('quiz-next').classList.add('show');
+}
+
+function nextQuizQuestion() {
+  quizState.current++;
+  renderQuiz();
+  document.getElementById('screen-quiz').scrollTop = 0;
+}
+
+function finishQuiz(passed) {
+  if (passed) {
+    // Record pass
+    if (!state.testsPassed) state.testsPassed = {};
+    if (!state.testsPassed[state.level]) state.testsPassed[state.level] = [];
+    if (!state.testsPassed[state.level].includes(quizState.testIdx)) {
+      state.testsPassed[state.level].push(quizState.testIdx);
+    }
+    saveState(state);
+    currentLessonIdx = quizState.testIdx * TEST_INTERVAL + TEST_INTERVAL; // jump to first lesson of next block
+    if (currentLessonIdx >= getPool().length) currentLessonIdx = 0;
+    quizState = null;
+    showScreen('today');
+    renderLesson();
+  } else {
+    // Go back to first lesson of the block to review
+    currentLessonIdx = quizState.testIdx * TEST_INTERVAL;
+    quizState = null;
+    showScreen('today');
+    renderLesson();
+  }
+}
+
 // ── SERVICE WORKER & NOTIFICATIONS ──────────────────────────────────────────
 
 let swReg = null;
@@ -948,18 +1254,20 @@ function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
-  document.querySelector(`.nav-btn[data-screen="${name}"]`).classList.add('active');
+  const navBtn = document.querySelector(`.nav-btn[data-screen="${name}"]`);
+  if (navBtn) navBtn.classList.add('active');
   currentScreen = name;
   if (name === 'today') { renderLesson(); showNagBanner(); }
   if (name === 'history') renderHistory();
   if (name === 'settings') renderSettings();
+  if (name === 'quiz') renderQuiz();
 }
 
 // ── SETTINGS SAVE ────────────────────────────────────────────────────────────
 
 function saveSettings() {
   const newLevel = document.querySelector('.level-pill.active')?.dataset.level || 'A1';
-  if (newLevel !== state.level) currentLessonIdx = 0; // reset on level change
+  if (newLevel !== state.level) { currentLessonIdx = 0; } // reset on level change
   state.level = newLevel;
   state.nagEnabled = document.getElementById('nag-toggle').checked;
   state.nagTime = document.getElementById('nag-time').value;
