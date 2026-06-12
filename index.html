@@ -1423,12 +1423,14 @@ function renderQuiz() {
 
     let title, subtitle, msg, btnLabel;
     if (finalExam) {
-      title = finalExam ? `${finalExamLevel} Level Exam` : `Test ${testIdx + 1}`;
+      title = `${finalExamLevel} Level Exam`;
       subtitle = passed ? 'Exam passed!' : 'Exam failed';
+      const LEVEL_ORDER = ['A1','A2','B1','B2','C1','C2'];
+      const nextLevel = LEVEL_ORDER[LEVEL_ORDER.indexOf(finalExamLevel) + 1];
       msg = passed
-        ? `Outstanding! You've mastered ${finalExamLevel}. You can now advance to the next level in Settings.`
+        ? `Outstanding! You've mastered ${finalExamLevel}.${nextLevel ? ` Ready to start ${nextLevel}?` : ' You\'ve completed all levels!'}`
         : 'You need 90% to pass the Level Exam. Review your lessons and try again.';
-      btnLabel = passed ? 'Continue →' : 'Review lessons';
+      btnLabel = passed ? (nextLevel ? `🎉 Advance to ${nextLevel} →` : '🏆 Complete!') : 'Review lessons';
     } else {
       title = `Test ${testIdx + 1}`;
       subtitle = passed ? 'Passed!' : 'Not quite...';
@@ -1521,6 +1523,13 @@ function finishQuiz(passed) {
     if (passed) {
       if (!state.finalExamPassed) state.finalExamPassed = {};
       state.finalExamPassed[finalExamLevel] = true;
+      // Advance to next level automatically
+      const LEVEL_ORDER = ['A1','A2','B1','B2','C1','C2'];
+      const nextLevel = LEVEL_ORDER[LEVEL_ORDER.indexOf(finalExamLevel) + 1];
+      if (nextLevel) {
+        state.level = nextLevel;
+        currentLessonIdx = 0;
+      }
       saveState(state);
     }
     quizState = null;
