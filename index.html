@@ -1693,6 +1693,7 @@ function finishQuiz(passed) {
             state.level = nextLevel;
             state.activePack = null;
             currentLessonIdx = 0;
+            document.getElementById('level-badge').textContent = nextLevel;
           }
         }
         saveState(state);
