@@ -1082,6 +1082,9 @@ function renderLesson() {
     }
   }
 
+  // DEV cheat button — top of page
+  html += `<button onclick="cheatMarkBlock()" style="width:100%;background:#3a1a1a;border:1px dashed #884444;color:#cc6666;font-size:11px;font-family:inherit;padding:6px;border-radius:8px;cursor:pointer;margin-bottom:10px;">⚡ DEV: Mark all ${TEST_INTERVAL} lessons in this block as studied</button>`;
+
   // Nouns
   lesson.nouns.forEach(n => {
     html += `
@@ -1137,8 +1140,7 @@ function renderLesson() {
   });
 
   if (!isDone) {
-    html += `<button class="save-btn" style="margin-top:0" onclick="doneLesson()">✓ Mark as studied</button>
-    <button onclick="cheatMarkBlock()" style="margin-top:8px;width:100%;background:#3a1a1a;border:1px dashed #884444;color:#cc6666;font-size:11px;font-family:inherit;padding:6px;border-radius:8px;cursor:pointer;">⚡ DEV: Mark all ${TEST_INTERVAL} lessons in this block as studied</button>`;
+    html += `<button class="save-btn" style="margin-top:0" onclick="doneLesson()">✓ Mark as studied</button>`;
   } else {
     html += `<div style="text-align:center;color:var(--accent2);font-size:13px;padding:10px 0;">✓ Studied</div>`;
   }
