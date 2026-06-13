@@ -1491,6 +1491,7 @@ function startQuiz(testIdx, practiceMode = false) {
 }
 
 function startFinalExam(level, packId) {
+  console.log('startFinalExam called', level, packId, new Error().stack.split('\n').slice(1,4).join(' | '));
   quizState = {
     testIdx: -1,
     finalExam: true,
@@ -1501,7 +1502,7 @@ function startFinalExam(level, packId) {
     score: 0,
     answered: 0,
     returnToLesson: currentLessonIdx,
-    practiceMode: !!packId  // supplementary pack exams are always practice (no gating)
+    practiceMode: !!packId
   };
   showScreen('quiz');
   renderQuiz();
