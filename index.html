@@ -694,7 +694,6 @@ const VOCAB = {
     { nouns: [{de:'der Freund', en:'the friend', note:'masculine'}, {de:'die Familie', en:'the family', note:'feminine'}], verbs: [{de:'besuchen', en:'to visit', conj:'er besucht'}], adjs: [{de:'nett', en:'nice'}], sentences: [{de:'Er besucht seine nette Familie.', en:'He visits his nice family.'}, {de:'Der Freund ist sehr nett.', en:'The friend is very nice.'}] },
     { nouns: [{de:'das Auto', en:'the car', note:'neuter'}, {de:'die Garage', en:'the garage', note:'feminine'}], verbs: [{de:'parken', en:'to park', conj:'er parkt'}], adjs: [{de:'rot', en:'red'}], sentences: [{de:'Er parkt das rote Auto.', en:'He parks the red car.'}, {de:'Die Garage ist leer.', en:'The garage is empty.'}] },
     { nouns: [{de:'der Supermarkt', en:'the supermarket', note:'masculine'}, {de:'die Kasse', en:'the checkout', note:'feminine'}], verbs: [{de:'bezahlen', en:'to pay', conj:'er bezahlt'}], adjs: [{de:'teuer', en:'expensive'}], sentences: [{de:'Er bezahlt an der Kasse.', en:'He pays at the checkout.'}, {de:'Das Essen ist teuer.', en:'The food is expensive.'}] },
-    { nouns: [{de:'der Abend', en:'the evening', note:'masculine'}, {de:'das Konzert', en:'the concert', note:'neuter'}], verbs: [{de:'hören', en:'to listen', conj:'er hört'}], adjs: [{de:'laut', en:'loud'}], sentences: [{de:'Das Konzert ist laut.', en:'The concert is loud.'}, {de:'Am Abend hört er Musik.', en:'In the evening he listens to music.'}] },
   ],
   // A2: 3 nouns, 2 verbs, 2 adj, 2 sentences
   A2: [
@@ -1011,8 +1010,7 @@ function renderLesson() {
   if (testReady) {
     counterEl.innerHTML = `Lesson ${currentLessonIdx + 1} of ${pool.length} &nbsp;<span class="test-due-badge" onclick="startQuiz(${testIdx})">📝 Test ${testIdx + 1} ready!</span>`;
   } else {
-    const retakeBtn = prevTestPassed ? ` &nbsp;<span class="retake-badge" onclick="startQuiz(${prevTestIdx}, true)">↺ Test ${prevTestIdx + 1}</span>` : '';
-    counterEl.innerHTML = `Lesson ${currentLessonIdx + 1} of ${pool.length}` + retakeBtn;
+    counterEl.innerHTML = `Lesson ${currentLessonIdx + 1} of ${pool.length}`;
   }
 
   // Final exam banner — show if all mini-tests passed but final exam not yet taken
