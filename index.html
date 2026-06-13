@@ -1137,7 +1137,8 @@ function renderLesson() {
   });
 
   if (!isDone) {
-    html += `<button class="save-btn" style="margin-top:0" onclick="doneLesson()">✓ Mark as studied</button>`;
+    html += `<button class="save-btn" style="margin-top:0" onclick="doneLesson()">✓ Mark as studied</button>
+    <button onclick="cheatMarkBlock()" style="margin-top:8px;width:100%;background:#3a1a1a;border:1px dashed #884444;color:#cc6666;font-size:11px;font-family:inherit;padding:6px;border-radius:8px;cursor:pointer;">⚡ DEV: Mark all ${TEST_INTERVAL} lessons in this block as studied</button>`;
   } else {
     html += `<div style="text-align:center;color:var(--accent2);font-size:13px;padding:10px 0;">✓ Studied</div>`;
   }
@@ -1502,6 +1503,16 @@ function startFinalExam(level, packId) {
   };
   showScreen('quiz');
   renderQuiz();
+}
+
+function cheatMarkBlock() {
+  // DEV ONLY: mark all lessons in the current block as studied
+  const blockStart = Math.floor(currentLessonIdx / TEST_INTERVAL) * TEST_INTERVAL;
+  for (let i = blockStart; i < blockStart + TEST_INTERVAL; i++) {
+    markLessonDone(i);
+  }
+  renderLesson();
+  renderHistory();
 }
 
 function cheatPass() {
