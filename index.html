@@ -1568,11 +1568,16 @@ function renderQuiz() {
           ? `Outstanding! You've mastered ${finalExamLevel}.`
           : 'You need 90% to pass the Level Exam. Review your lessons and try again.';
         if (passed && nextLevel) {
-          const packs = state.availablePacks[finalExamLevel] || [];
           btnLabel = `🎉 Advance to ${nextLevel} →`;
-          if (packs.length > 0) {
-            extraBtn = `<button class="quiz-result-btn" style="background:var(--accent2);margin-top:0" onclick="finishQuizStay('${finalExamLevel}')">📦 Stay on ${finalExamLevel} — get more content</button>`;
-          }
+          // Fetch manifest fresh to ensure we have up-to-date pack list
+          fetchManifest().then(() => {
+            const packs = state.availablePacks[finalExamLevel] || [];
+            if (packs.length > 0) {
+              const stayBtn = document.getElementById('quiz-stay-btn');
+              if (stayBtn) stayBtn.style.display = 'block';
+            }
+          });
+          extraBtn = `<button id="quiz-stay-btn" class="quiz-result-btn" style="background:var(--accent2);margin-top:0;display:none" onclick="finishQuizStay('${finalExamLevel}')">📦 Stay on ${finalExamLevel} — get more content</button>`;
         } else if (passed) {
           btnLabel = '🏆 Complete!';
         } else {
