@@ -1713,11 +1713,10 @@ function finishQuiz(passed) {
     }
     saveState(state);
 
-    // Check if all mini-tests for this level are now passed → trigger final exam
+    // Check if all mini-tests for this level are now passed → show the level exam banner
     if (allMiniTestsPassed() && !hasFinalExamPassed(state.level)) {
+      currentLessonIdx = getPool().length - 1; // stay on last lesson so banner is visible
       quizState = null;
-      // Small delay so user sees the pass confirmation before exam starts
-      setTimeout(() => startFinalExam(state.level), 400);
       showScreen('today');
       renderLesson();
       return;
