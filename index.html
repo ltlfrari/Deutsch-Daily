@@ -1772,9 +1772,10 @@ function finishQuiz(passed) {
   if (isFinalExam) {
     if (passed) {
       if (!state.finalExamPassed) state.finalExamPassed = {};
-      const examKey = quizState.practiceMode
-        ? null
-        : (quizState.packId ? `${finalExamLevel}:${quizState.packId}` : finalExamLevel);
+      // Always record pack exam passes (even though they're optional/practice)
+      const examKey = quizState.packId
+        ? `${finalExamLevel}:${quizState.packId}`
+        : (quizState.practiceMode ? null : finalExamLevel);
       if (examKey) {
         state.finalExamPassed[examKey] = true;
         saveState(state);
