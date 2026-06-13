@@ -960,6 +960,12 @@ function navigateLesson(dir) {
     const blockLastIdx = (currentBlock + 1) * TEST_INTERVAL - 1;
     const passed = getTestState();
 
+    // Block navigation if final exam is pending (all mini-tests passed, on last lesson)
+    if (currentLessonIdx === pool.length - 1 && allMiniTestsPassed() && !hasFinalExamPassed()) {
+      // Just bounce — the banner is already showing, nothing to do
+      return;
+    }
+
     if (currentLessonIdx === blockLastIdx && !passed.includes(currentBlock)) {
       // Always block navigation and show the lock badge — user must click it to proceed
       const counterEl = document.getElementById('lesson-counter');
