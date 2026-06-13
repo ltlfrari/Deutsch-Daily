@@ -68,7 +68,16 @@ button, a, [onclick] { touch-action: manipulation; }
     color: var(--accent);
     letter-spacing: -0.5px;
   }
-  .logo span { color: var(--accent); font-size: 16px; font-family: 'DM Sans', sans-serif; display: inline; font-weight: 700; letter-spacing: 1px; margin-left: 8px; background: rgba(212,175,55,0.15); padding: 2px 8px; border-radius: 6px; }
+  .logo span { display: inline-flex; gap: 4px; margin-left: 6px; vertical-align: middle; }
+  .level-pill {
+    color: var(--muted); font-size: 13px; font-family: 'DM Sans', sans-serif;
+    font-weight: 700; letter-spacing: 0.5px; padding: 2px 8px; border-radius: 6px;
+    border: 1.5px solid transparent; background: transparent; cursor: default;
+    font-family: inherit;
+  }
+  .level-pill.unlocked { cursor: pointer; border-color: #2a2a4a; color: var(--muted); }
+  .level-pill.unlocked:hover { border-color: var(--accent); color: var(--accent); }
+  .level-pill.active { background: rgba(212,175,55,0.15); border-color: var(--accent); color: var(--accent); cursor: default; }
   .header-btns { display: flex; gap: 8px; }
   .icon-btn {
     background: var(--card);
@@ -570,7 +579,7 @@ button, a, [onclick] { touch-action: manipulation; }
 <body>
 <div id="app">
   <header>
-    <div class="logo">Deutsch Daily <span id="level-badge">A1</span></div>
+    <div class="logo">Deutsch Daily <span id="level-selector"></span></div>
     <div class="header-btns">
       <button class="icon-btn" id="btn-notif" title="Enable notifications">🔔</button>
     </div>
@@ -1034,6 +1043,7 @@ function renderLesson() {
   document.getElementById('streak-num').textContent = state.streak;
   document.getElementById('done-badge').style.display = doneTodayCount > 0 ? 'flex' : 'none';
   document.getElementById('done-badge').textContent = `✓ ${doneTodayCount} today`;
+  renderLevelSelector();
 
   const d = new Date();
 
@@ -1327,7 +1337,7 @@ function renderSettings() {
   document.getElementById('nag-toggle').checked = state.nagEnabled;
   document.getElementById('nag-time').value = state.nagTime;
   document.getElementById('hide-toggle').checked = state.hideTranslations;
-  document.getElementById('level-badge').textContent = state.level;
+  renderLevelSelector();
 }
 
 // ── NAG BANNER ───────────────────────────────────────────────────────────────
@@ -1743,7 +1753,7 @@ function advanceLevel(fromLevel, toLevel) {
   state.level = toLevel;
   state.activePack = null;
   currentLessonIdx = 0;
-  document.getElementById('level-badge').textContent = toLevel;
+  renderLevelSelector();
   saveState(state);
   quizState = null;
   showScreen('today');
@@ -1906,6 +1916,36 @@ async function handlePackSelect(level, packId) {
   switchPackTo(level, packId);
 }
 
+function renderLevelSelector() {
+  const LEVEL_ORDER = ['A1','A2','B1','B2','C1','C2'];
+  const el = document.getElementById('level-selector');
+  if (!el) return;
+  let html = '';
+  LEVEL_ORDER.forEach(lvl => {
+    const isActive = lvl === state.level;
+    const isPassed = lvl === 'A1' || !!(state.finalExamPassed && state.finalExamPassed[LEVEL_ORDER[LEVEL_ORDER.indexOf(lvl) - 1]]);
+    if (isActive) {
+      html += `<button class="level-pill active">${lvl}</button>`;
+    } else if (isPassed) {
+      html += `<button class="level-pill unlocked" onclick="switchToLevel('${lvl}')">${lvl}</button>`;
+    }
+    // Locked levels not shown
+  });
+  el.innerHTML = html;
+}
+
+function switchToLevel(level) {
+  if (level === state.level) return;
+  state.activePack = null;
+  state.level = level;
+  currentLessonIdx = state.seenIndex[level] || 0;
+  
+  saveState(state);
+  renderLevelSelector();
+  renderLesson();
+  document.getElementById('screen-today').scrollTop = 0;
+}
+
 function showPackChooser(level) {
   // Refresh manifest then re-render to show pack options
   fetchManifest().then(() => renderLesson());
@@ -2040,7 +2080,7 @@ function saveSettings() {
   state.nagTime = document.getElementById('nag-time').value;
   state.hideTranslations = document.getElementById('hide-toggle').checked;
   saveState(state);
-  document.getElementById('level-badge').textContent = state.level;
+  renderLevelSelector();
 
   // flash confirmation
   const btn = document.getElementById('save-settings');
@@ -2104,6 +2144,7 @@ document.getElementById('btn-notif').addEventListener('click', requestNotifPermi
   }
 })();
 
+renderLevelSelector();
 renderLesson();
 renderSettings();
 initServiceWorker();
