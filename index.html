@@ -968,14 +968,13 @@ function navigateLesson(dir) {
     }
 
     if (currentLessonIdx === blockLastIdx && !passed.includes(currentBlock)) {
-      // Always block navigation and show the lock badge — user must click it to proceed
-      const counterEl = document.getElementById('lesson-counter');
-      counterEl.innerHTML = `Lesson ${currentLessonIdx + 1} of ${pool.length} &nbsp;<span class="lock-badge" style="cursor:pointer" onclick="handleLockedNav(${currentBlock})">🔒 Test needed</span>`;
-
       if (!blockAllLessonsDone(currentBlock)) {
         alert('Complete all 5 lessons in this block first, then take the test to unlock the next lessons.');
+        return;
       }
-      // If all lessons are done, just show the badge — user clicks it to go to the test
+      // All lessons done — show lock badge so user knows to take the test
+      const counterEl = document.getElementById('lesson-counter');
+      counterEl.innerHTML = `Lesson ${currentLessonIdx + 1} of ${pool.length} &nbsp;<span class="lock-badge" style="cursor:pointer" onclick="handleLockedNav(${currentBlock})">🔒 Test needed</span>`;
       return;
     }
   }
