@@ -1491,7 +1491,6 @@ function startQuiz(testIdx, practiceMode = false) {
 }
 
 function startFinalExam(level, packId) {
-  console.log('startFinalExam called', level, packId, new Error().stack.split('\n').slice(1,4).join(' | '));
   quizState = {
     testIdx: -1,
     finalExam: true,
