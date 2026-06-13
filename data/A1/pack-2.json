@@ -1,0 +1,227 @@
+[
+  {
+    "nouns": [{"de": "die Blume", "en": "the flower", "note": "feminine"}, {"de": "der Garten", "en": "the garden", "note": "masculine"}],
+    "verbs": [{"de": "spielen", "en": "to play", "conj": "er spielt"}],
+    "adjs": [{"de": "schön", "en": "beautiful"}],
+    "sentences": [
+      {"de": "Die Blume im Garten ist schön.", "en": "The flower in the garden is beautiful."},
+      {"de": "Das Kind spielt im Garten.", "en": "The child plays in the garden."}
+    ]
+  },
+  {
+    "nouns": [{"de": "der Stuhl", "en": "the chair", "note": "masculine"}, {"de": "das Fenster", "en": "the window", "note": "neuter"}],
+    "verbs": [{"de": "sitzen", "en": "to sit", "conj": "er sitzt"}],
+    "adjs": [{"de": "offen", "en": "open"}],
+    "sentences": [
+      {"de": "Der Stuhl steht neben dem Fenster.", "en": "The chair stands next to the window."},
+      {"de": "Sie sitzt am offenen Fenster.", "en": "She sits at the open window."}
+    ]
+  },
+  {
+    "nouns": [{"de": "die Straße", "en": "the street", "note": "feminine"}, {"de": "das Auto", "en": "the car", "note": "neuter"}],
+    "verbs": [{"de": "fahren", "en": "to drive", "conj": "er fährt"}],
+    "adjs": [{"de": "schnell", "en": "fast"}],
+    "sentences": [
+      {"de": "Das Auto fährt schnell durch die Straße.", "en": "The car drives fast through the street."},
+      {"de": "Die Straße ist lang und gerade.", "en": "The street is long and straight."}
+    ]
+  },
+  {
+    "nouns": [{"de": "der Bruder", "en": "the brother", "note": "masculine"}, {"de": "die Schwester", "en": "the sister", "note": "feminine"}],
+    "verbs": [{"de": "helfen", "en": "to help", "conj": "er hilft"}],
+    "adjs": [{"de": "nett", "en": "nice"}],
+    "sentences": [
+      {"de": "Mein Bruder hilft meiner Schwester.", "en": "My brother helps my sister."},
+      {"de": "Meine Schwester ist sehr nett.", "en": "My sister is very nice."}
+    ]
+  },
+  {
+    "nouns": [{"de": "das Wasser", "en": "the water", "note": "neuter"}, {"de": "die Flasche", "en": "the bottle", "note": "feminine"}],
+    "verbs": [{"de": "trinken", "en": "to drink", "conj": "er trinkt"}],
+    "adjs": [{"de": "kalt", "en": "cold"}],
+    "sentences": [
+      {"de": "Er trinkt kaltes Wasser aus der Flasche.", "en": "He drinks cold water from the bottle."},
+      {"de": "Die Flasche ist leer.", "en": "The bottle is empty."}
+    ]
+  },
+  {
+    "nouns": [{"de": "der Zug", "en": "the train", "note": "masculine"}, {"de": "der Bahnhof", "en": "the train station", "note": "masculine"}],
+    "verbs": [{"de": "warten", "en": "to wait", "conj": "er wartet"}],
+    "adjs": [{"de": "pünktlich", "en": "punctual"}],
+    "sentences": [
+      {"de": "Wir warten am Bahnhof auf den Zug.", "en": "We wait at the train station for the train."},
+      {"de": "Der Zug ist heute pünktlich.", "en": "The train is punctual today."}
+    ]
+  },
+  {
+    "nouns": [{"de": "die Küche", "en": "the kitchen", "note": "feminine"}, {"de": "das Brot", "en": "the bread", "note": "neuter"}],
+    "verbs": [{"de": "kochen", "en": "to cook", "conj": "er kocht"}],
+    "adjs": [{"de": "frisch", "en": "fresh"}],
+    "sentences": [
+      {"de": "Sie kocht in der Küche.", "en": "She cooks in the kitchen."},
+      {"de": "Das Brot ist frisch und warm.", "en": "The bread is fresh and warm."}
+    ]
+  },
+  {
+    "nouns": [{"de": "der Arzt", "en": "the doctor", "note": "masculine"}, {"de": "das Krankenhaus", "en": "the hospital", "note": "neuter"}],
+    "verbs": [{"de": "arbeiten", "en": "to work", "conj": "er arbeitet"}],
+    "adjs": [{"de": "krank", "en": "ill"}],
+    "sentences": [
+      {"de": "Der Arzt arbeitet im Krankenhaus.", "en": "The doctor works in the hospital."},
+      {"de": "Die Frau ist krank und geht zum Arzt.", "en": "The woman is ill and goes to the doctor."}
+    ]
+  },
+  {
+    "nouns": [{"de": "der Hund", "en": "the dog", "note": "masculine"}, {"de": "der Park", "en": "the park", "note": "masculine"}],
+    "verbs": [{"de": "laufen", "en": "to run", "conj": "er läuft"}],
+    "adjs": [{"de": "groß", "en": "big"}],
+    "sentences": [
+      {"de": "Der große Hund läuft im Park.", "en": "The big dog runs in the park."},
+      {"de": "Wir gehen jeden Tag in den Park.", "en": "We go to the park every day."}
+    ]
+  },
+  {
+    "nouns": [{"de": "die Schule", "en": "the school", "note": "feminine"}, {"de": "der Lehrer", "en": "the teacher", "note": "masculine"}],
+    "verbs": [{"de": "lernen", "en": "to learn", "conj": "er lernt"}],
+    "adjs": [{"de": "fleißig", "en": "hardworking"}],
+    "sentences": [
+      {"de": "Der Lehrer arbeitet in der Schule.", "en": "The teacher works at the school."},
+      {"de": "Die fleißigen Kinder lernen viel.", "en": "The hardworking children learn a lot."}
+    ]
+  },
+  {
+    "nouns": [{"de": "der Abend", "en": "the evening", "note": "masculine"}, {"de": "das Licht", "en": "the light", "note": "neuter"}],
+    "verbs": [{"de": "lesen", "en": "to read", "conj": "er liest"}],
+    "adjs": [{"de": "ruhig", "en": "quiet"}],
+    "sentences": [
+      {"de": "Am Abend liest er ein Buch.", "en": "In the evening he reads a book."},
+      {"de": "Das Zimmer ist ruhig und das Licht ist an.", "en": "The room is quiet and the light is on."}
+    ]
+  },
+  {
+    "nouns": [{"de": "das Geld", "en": "the money", "note": "neuter"}, {"de": "der Supermarkt", "en": "the supermarket", "note": "masculine"}],
+    "verbs": [{"de": "kaufen", "en": "to buy", "conj": "er kauft"}],
+    "adjs": [{"de": "billig", "en": "cheap"}],
+    "sentences": [
+      {"de": "Sie kauft Lebensmittel im Supermarkt.", "en": "She buys groceries at the supermarket."},
+      {"de": "Das Brot ist sehr billig.", "en": "The bread is very cheap."}
+    ]
+  },
+  {
+    "nouns": [{"de": "die Musik", "en": "the music", "note": "feminine"}, {"de": "das Konzert", "en": "the concert", "note": "neuter"}],
+    "verbs": [{"de": "hören", "en": "to listen", "conj": "er hört"}],
+    "adjs": [{"de": "laut", "en": "loud"}],
+    "sentences": [
+      {"de": "Wir hören Musik auf dem Konzert.", "en": "We listen to music at the concert."},
+      {"de": "Die Musik ist sehr laut.", "en": "The music is very loud."}
+    ]
+  },
+  {
+    "nouns": [{"de": "der Morgen", "en": "the morning", "note": "masculine"}, {"de": "der Kaffee", "en": "the coffee", "note": "masculine"}],
+    "verbs": [{"de": "aufstehen", "en": "to get up", "conj": "er steht auf"}],
+    "adjs": [{"de": "müde", "en": "tired"}],
+    "sentences": [
+      {"de": "Am Morgen steht er auf und trinkt Kaffee.", "en": "In the morning he gets up and drinks coffee."},
+      {"de": "Sie ist müde und braucht Kaffee.", "en": "She is tired and needs coffee."}
+    ]
+  },
+  {
+    "nouns": [{"de": "das Zimmer", "en": "the room", "note": "neuter"}, {"de": "das Bett", "en": "the bed", "note": "neuter"}],
+    "verbs": [{"de": "schlafen", "en": "to sleep", "conj": "er schläft"}],
+    "adjs": [{"de": "bequem", "en": "comfortable"}],
+    "sentences": [
+      {"de": "Er schläft in seinem Zimmer.", "en": "He sleeps in his room."},
+      {"de": "Das Bett ist sehr bequem.", "en": "The bed is very comfortable."}
+    ]
+  },
+  {
+    "nouns": [{"de": "die Hand", "en": "the hand", "note": "feminine"}, {"de": "der Ball", "en": "the ball", "note": "masculine"}],
+    "verbs": [{"de": "werfen", "en": "to throw", "conj": "er wirft"}],
+    "adjs": [{"de": "rund", "en": "round"}],
+    "sentences": [
+      {"de": "Er wirft den Ball mit der Hand.", "en": "He throws the ball with his hand."},
+      {"de": "Der Ball ist rund und rot.", "en": "The ball is round and red."}
+    ]
+  },
+  {
+    "nouns": [{"de": "die Post", "en": "the post office", "note": "feminine"}, {"de": "der Brief", "en": "the letter", "note": "masculine"}],
+    "verbs": [{"de": "schreiben", "en": "to write", "conj": "er schreibt"}],
+    "adjs": [{"de": "lang", "en": "long"}],
+    "sentences": [
+      {"de": "Sie schreibt einen langen Brief.", "en": "She writes a long letter."},
+      {"de": "Er bringt den Brief zur Post.", "en": "He brings the letter to the post office."}
+    ]
+  },
+  {
+    "nouns": [{"de": "der Himmel", "en": "the sky", "note": "masculine"}, {"de": "die Wolke", "en": "the cloud", "note": "feminine"}],
+    "verbs": [{"de": "regnen", "en": "to rain", "conj": "es regnet"}],
+    "adjs": [{"de": "grau", "en": "grey"}],
+    "sentences": [
+      {"de": "Der Himmel ist grau und es regnet.", "en": "The sky is grey and it is raining."},
+      {"de": "Die Wolken sind groß und dunkel.", "en": "The clouds are big and dark."}
+    ]
+  },
+  {
+    "nouns": [{"de": "das Foto", "en": "the photo", "note": "neuter"}, {"de": "die Kamera", "en": "the camera", "note": "feminine"}],
+    "verbs": [{"de": "machen", "en": "to take (a photo)", "conj": "er macht"}],
+    "adjs": [{"de": "hübsch", "en": "pretty"}],
+    "sentences": [
+      {"de": "Er macht ein Foto mit der Kamera.", "en": "He takes a photo with the camera."},
+      {"de": "Das Foto ist sehr hübsch.", "en": "The photo is very pretty."}
+    ]
+  },
+  {
+    "nouns": [{"de": "der Freund", "en": "the friend", "note": "masculine"}, {"de": "das Geburtstagsfest", "en": "the birthday party", "note": "neuter"}],
+    "verbs": [{"de": "feiern", "en": "to celebrate", "conj": "er feiert"}],
+    "adjs": [{"de": "fröhlich", "en": "cheerful"}],
+    "sentences": [
+      {"de": "Mein Freund feiert heute sein Geburtstagsfest.", "en": "My friend celebrates his birthday party today."},
+      {"de": "Alle sind fröhlich auf dem Fest.", "en": "Everyone is cheerful at the party."}
+    ]
+  },
+  {
+    "nouns": [{"de": "der Laden", "en": "the shop", "note": "masculine"}, {"de": "die Tasche", "en": "the bag", "note": "feminine"}],
+    "verbs": [{"de": "tragen", "en": "to carry", "conj": "er trägt"}],
+    "adjs": [{"de": "schwer", "en": "heavy"}],
+    "sentences": [
+      {"de": "Sie trägt eine schwere Tasche aus dem Laden.", "en": "She carries a heavy bag from the shop."},
+      {"de": "Der Laden öffnet um neun Uhr.", "en": "The shop opens at nine o'clock."}
+    ]
+  },
+  {
+    "nouns": [{"de": "das Tier", "en": "the animal", "note": "neuter"}, {"de": "der Zoo", "en": "the zoo", "note": "masculine"}],
+    "verbs": [{"de": "besuchen", "en": "to visit", "conj": "er besucht"}],
+    "adjs": [{"de": "wild", "en": "wild"}],
+    "sentences": [
+      {"de": "Wir besuchen den Zoo und sehen wilde Tiere.", "en": "We visit the zoo and see wild animals."},
+      {"de": "Der Zoo ist groß und interessant.", "en": "The zoo is big and interesting."}
+    ]
+  },
+  {
+    "nouns": [{"de": "die Uhr", "en": "the clock", "note": "feminine"}, {"de": "die Minute", "en": "the minute", "note": "feminine"}],
+    "verbs": [{"de": "beginnen", "en": "to begin", "conj": "er beginnt"}],
+    "adjs": [{"de": "früh", "en": "early"}],
+    "sentences": [
+      {"de": "Der Unterricht beginnt früh um acht Uhr.", "en": "The lesson begins early at eight o'clock."},
+      {"de": "Die Uhr zeigt fünf Minuten nach acht.", "en": "The clock shows five minutes past eight."}
+    ]
+  },
+  {
+    "nouns": [{"de": "das Wort", "en": "the word", "note": "neuter"}, {"de": "die Sprache", "en": "the language", "note": "feminine"}],
+    "verbs": [{"de": "verstehen", "en": "to understand", "conj": "er versteht"}],
+    "adjs": [{"de": "einfach", "en": "simple"}],
+    "sentences": [
+      {"de": "Er versteht das Wort nicht.", "en": "He does not understand the word."},
+      {"de": "Die deutsche Sprache hat viele einfache Wörter.", "en": "The German language has many simple words."}
+    ]
+  },
+  {
+    "nouns": [{"de": "der Weg", "en": "the path", "note": "masculine"}, {"de": "der Wald", "en": "the forest", "note": "masculine"}],
+    "verbs": [{"de": "gehen", "en": "to walk", "conj": "er geht"}],
+    "adjs": [{"de": "lang", "en": "long"}],
+    "sentences": [
+      {"de": "Wir gehen einen langen Weg durch den Wald.", "en": "We walk a long path through the forest."},
+      {"de": "Der Wald ist grün und ruhig.", "en": "The forest is green and quiet."}
+    ]
+  }
+]

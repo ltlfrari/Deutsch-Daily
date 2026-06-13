@@ -510,6 +510,25 @@ button, a, [onclick] { touch-action: manipulation; }
   .history-test-retake { background: var(--surface); border: 1px solid #333355; color: var(--muted); font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 10px; cursor: pointer; font-family: inherit; white-space: nowrap; }
   .history-test-retake:active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
 
+  /* ── EXTRA PACKS ── */
+  .pack-banner {
+    background: linear-gradient(135deg, #1a2a1a, #1a1a2e);
+    border: 1.5px solid var(--accent2);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .pack-banner-emoji { font-size: 32px; margin-bottom: 8px; }
+  .pack-banner-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--accent2); margin-bottom: 6px; }
+  .pack-banner-sub { font-size: 13px; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
+  .pack-banner-btn { background: var(--accent2); color: var(--bg); border: none; border-radius: 12px; padding: 12px 28px; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; margin: 4px; }
+  .pack-banner-btn.secondary { background: var(--surface); color: var(--text); border: 1px solid #333355; }
+  .pack-select { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 10px; }
+  .pack-pill { background: var(--surface); border: 1.5px solid #2a2a4a; color: var(--muted); font-size: 13px; font-weight: 600; padding: 6px 16px; border-radius: 20px; cursor: pointer; font-family: inherit; }
+  .pack-pill.active { background: var(--accent2); color: var(--bg); border-color: var(--accent2); }
+  .pack-pill.downloading { opacity: 0.6; cursor: wait; }
+
   /* ── FINAL EXAM ── */
   .final-exam-banner {
     background: linear-gradient(135deg, #2a1a4a, #1a2a4a);
@@ -823,6 +842,9 @@ function loadState() {
       seenIndex: s.seenIndex || {},
       testsPassed: s.testsPassed || {},
       finalExamPassed: s.finalExamPassed || {},
+      activePack: s.activePack || null,           // { level, packId } or null for built-in
+      downloadedPacks: s.downloadedPacks || {},    // { 'A1:pack-2': [...lessons] }
+      availablePacks: s.availablePacks || {},      // { A1: ['pack-2'] } — cached manifest
     };
   } catch { return { level:'A1', nagEnabled:false, nagTime:'09:00', hideTranslations:false, streak:0, lastLesson:null, history:[], seenIndex:{}, testsPassed:{}, finalExamPassed:{} }; }
 }
@@ -842,7 +864,19 @@ function todayStr() {
 }
 
 function getPool() {
+  if (state.activePack && state.activePack.level === state.level) {
+    const key = `${state.level}:${state.activePack.packId}`;
+    if (state.downloadedPacks[key]) return state.downloadedPacks[key];
+  }
   return VOCAB[state.level];
+}
+
+function getPoolKey() {
+  // Unique key for the current lesson pool — used for test/history tracking
+  if (state.activePack && state.activePack.level === state.level) {
+    return `${state.level}:${state.activePack.packId}`;
+  }
+  return state.level;
 }
 
 function markLessonDone(idx) {
@@ -982,16 +1016,48 @@ function renderLesson() {
   }
 
   // Final exam banner — show if all mini-tests passed but final exam not yet taken
-  const finalExamBanner = allMiniTestsPassed() && !hasFinalExamPassed(state.level);
+  const isSupplementaryPack = !!(state.activePack && state.activePack.level === state.level);
+  const builtInExamPassed = !!state.finalExamPassed[state.level];
+  const finalExamBanner = allMiniTestsPassed() && !hasFinalExamPassed();
   let html = '';
+
   if (finalExamBanner) {
-    html += `
-    <div class="final-exam-banner">
-      <div class="final-exam-banner-emoji">🏆</div>
-      <div class="final-exam-banner-title">${state.level} Level Exam Ready!</div>
-      <div class="final-exam-banner-sub">You've passed all 5 tests. Complete the 40-question Level Exam to unlock the next level.</div>
-      <button class="final-exam-banner-btn" onclick="startFinalExam('${state.level}')">Take Level Exam →</button>
-    </div>`
+    if (isSupplementaryPack) {
+      // Supplementary pack — offer optional test
+      html += `
+      <div class="pack-banner">
+        <div class="pack-banner-emoji">🎉</div>
+        <div class="pack-banner-title">Pack Complete!</div>
+        <div class="pack-banner-sub">You've finished all 25 lessons in ${state.activePack.packId.replace('-',' ').replace(/\b\w/g,c=>c.toUpperCase())}. Take the optional 40-question level test to check your progress.</div>
+        <button class="pack-banner-btn" onclick="startFinalExam('${state.level}', '${state.activePack.packId}')">📝 Optional Level Test →</button>
+        <button class="pack-banner-btn secondary" onclick="showPackChooser('${state.level}')">More packs</button>
+      </div>`;
+    } else {
+      html += `
+      <div class="final-exam-banner">
+        <div class="final-exam-banner-emoji">🏆</div>
+        <div class="final-exam-banner-title">${state.level} Level Exam Ready!</div>
+        <div class="final-exam-banner-sub">You've passed all 5 tests. Complete the 40-question Level Exam to unlock the next level.</div>
+        <button class="final-exam-banner-btn" onclick="startFinalExam('${state.level}')">Take Level Exam →</button>
+      </div>`;
+    }
+  } else if (builtInExamPassed && !isSupplementaryPack) {
+    // Built-in pack fully complete — show option to get more content
+    const packs = state.availablePacks[state.level] || [];
+    const undownloaded = packs.filter(p => !state.downloadedPacks[`${state.level}:${p}`]);
+    const downloaded = packs.filter(p => !!state.downloadedPacks[`${state.level}:${p}`]);
+    if (packs.length > 0) {
+      html += `
+      <div class="pack-banner">
+        <div class="pack-banner-emoji">📦</div>
+        <div class="pack-banner-title">More ${state.level} Content Available</div>
+        <div class="pack-banner-sub">You've mastered the built-in ${state.level} lessons. Download a new vocab pack to keep practising before moving on.</div>
+        <div class="pack-select">
+          ${downloaded.map(p => `<button class="pack-pill active" onclick="activatePack('${state.level}','${p}')" data-pack="${p}">${p.replace('-',' ').replace(/\b\w/g,c=>c.toUpperCase())}</button>`).join('')}
+          ${undownloaded.map(p => `<button class="pack-pill" onclick="handlePackSelect('${state.level}','${p}')" data-pack="${p}">${p.replace('-',' ').replace(/\b\w/g,c=>c.toUpperCase())}</button>`).join('')}
+        </div>
+      </div>`;
+    }
   }
 
   // Nouns
@@ -1195,10 +1261,10 @@ function renderSettings() {
 const TEST_INTERVAL = 5;
 
 function getTestState() {
-  // testsPassed[level] = array of test indices passed e.g. [0,1] = passed tests after lesson 5 and 10
+  const key = getPoolKey();
   if (!state.testsPassed) state.testsPassed = {};
-  if (!state.testsPassed[state.level]) state.testsPassed[state.level] = [];
-  return state.testsPassed[state.level];
+  if (!state.testsPassed[key]) state.testsPassed[key] = [];
+  return state.testsPassed[key];
 }
 
 // Which test index (0-based) is due next? e.g. 0 = after lesson 5
@@ -1369,10 +1435,16 @@ function allMiniTestsPassed() {
   return true;
 }
 
-// Has the final exam for the current level been passed?
+// Has the final exam for the current level (or pack) been passed?
 function hasFinalExamPassed(level) {
   if (!state.finalExamPassed) state.finalExamPassed = {};
-  return !!state.finalExamPassed[level || state.level];
+  const key = level || state.level;
+  // For supplementary packs, check the pack-specific key
+  if (!level && state.activePack && state.activePack.level === state.level) {
+    const packKey = `${state.level}:${state.activePack.packId}`;
+    return !!state.finalExamPassed[packKey];
+  }
+  return !!state.finalExamPassed[key];
 }
 
 // ── QUIZ STATE ────────────────────────────────────────────────────────────────
@@ -1393,17 +1465,18 @@ function startQuiz(testIdx, practiceMode = false) {
   renderQuiz();
 }
 
-function startFinalExam(level) {
+function startFinalExam(level, packId) {
   quizState = {
     testIdx: -1,
     finalExam: true,
     finalExamLevel: level || state.level,
+    packId: packId || null,
     questions: buildFinalExam(level || state.level),
     current: 0,
     score: 0,
     answered: 0,
     returnToLesson: currentLessonIdx,
-    practiceMode: false
+    practiceMode: !!packId  // supplementary pack exams are always practice (no gating)
   };
   showScreen('quiz');
   renderQuiz();
@@ -1421,16 +1494,37 @@ function renderQuiz() {
     const pct = Math.round((score / total) * 100);
     const passed = pct >= 90;
 
-    let title, subtitle, msg, btnLabel;
+    let title, subtitle, msg, btnLabel, extraBtn = '';
     if (finalExam) {
       title = `${finalExamLevel} Level Exam`;
-      subtitle = passed ? 'Exam passed!' : 'Exam failed';
       const LEVEL_ORDER = ['A1','A2','B1','B2','C1','C2'];
       const nextLevel = LEVEL_ORDER[LEVEL_ORDER.indexOf(finalExamLevel) + 1];
-      msg = passed
-        ? `Outstanding! You've mastered ${finalExamLevel}.${nextLevel ? ` Ready to start ${nextLevel}?` : ' You\'ve completed all levels!'}`
-        : 'You need 90% to pass the Level Exam. Review your lessons and try again.';
-      btnLabel = passed ? (nextLevel ? `🎉 Advance to ${nextLevel} →` : '🏆 Complete!') : 'Review lessons';
+      const isSupplementary = !!quizState.packId;
+
+      if (isSupplementary) {
+        // Optional pack exam
+        subtitle = passed ? 'Great work!' : 'Not quite...';
+        msg = passed
+          ? `Excellent! You scored ${pct}% on the ${finalExamLevel} Pack test. This was optional — your progress is unaffected.`
+          : `You scored ${pct}%. Keep reviewing the pack lessons and try again any time.`;
+        btnLabel = 'Back to lessons';
+      } else {
+        subtitle = passed ? 'Exam passed!' : 'Exam failed';
+        msg = passed
+          ? `Outstanding! You've mastered ${finalExamLevel}.`
+          : 'You need 90% to pass the Level Exam. Review your lessons and try again.';
+        if (passed && nextLevel) {
+          const packs = state.availablePacks[finalExamLevel] || [];
+          btnLabel = `🎉 Advance to ${nextLevel} →`;
+          if (packs.length > 0) {
+            extraBtn = `<button class="quiz-result-btn" style="background:var(--accent2);margin-top:0" onclick="finishQuizStay('${finalExamLevel}')">📦 Stay on ${finalExamLevel} — get more content</button>`;
+          }
+        } else if (passed) {
+          btnLabel = '🏆 Complete!';
+        } else {
+          btnLabel = 'Review lessons';
+        }
+      }
     } else {
       title = `Test ${testIdx + 1}`;
       subtitle = passed ? 'Passed!' : 'Not quite...';
@@ -1447,6 +1541,7 @@ function renderQuiz() {
         <div class="quiz-result-score">${score} / ${total} correct — ${pct}%</div>
         <div class="quiz-result-msg">${msg}</div>
         <button class="quiz-result-btn" onclick="finishQuiz(${passed})">${btnLabel}</button>
+        ${extraBtn}
       </div>`;
     return;
   }
@@ -1513,6 +1608,19 @@ function nextQuizQuestion() {
   document.getElementById('screen-quiz').scrollTop = 0;
 }
 
+function finishQuizStay(level) {
+  // User passed the level exam but wants to stay and do more content at this level
+  if (!state.finalExamPassed) state.finalExamPassed = {};
+  state.finalExamPassed[level] = true;
+  state.activePack = null;
+  state.level = level;
+  currentLessonIdx = 0;
+  saveState(state);
+  quizState = null;
+  showScreen('today');
+  renderLesson();
+}
+
 function finishQuiz(passed) {
   const practice = quizState.practiceMode;
   const testIdx = quizState.testIdx;
@@ -1522,15 +1630,24 @@ function finishQuiz(passed) {
   if (isFinalExam) {
     if (passed) {
       if (!state.finalExamPassed) state.finalExamPassed = {};
-      state.finalExamPassed[finalExamLevel] = true;
-      // Advance to next level automatically
-      const LEVEL_ORDER = ['A1','A2','B1','B2','C1','C2'];
-      const nextLevel = LEVEL_ORDER[LEVEL_ORDER.indexOf(finalExamLevel) + 1];
-      if (nextLevel) {
-        state.level = nextLevel;
-        currentLessonIdx = 0;
+      const examKey = quizState.practiceMode
+        ? null  // practice run — don't record
+        : (quizState.packId ? `${finalExamLevel}:${quizState.packId}` : finalExamLevel);
+
+      if (examKey) {
+        state.finalExamPassed[examKey] = true;
+        // Only auto-advance for the built-in pack (not supplementary packs)
+        if (!quizState.packId) {
+          const LEVEL_ORDER = ['A1','A2','B1','B2','C1','C2'];
+          const nextLevel = LEVEL_ORDER[LEVEL_ORDER.indexOf(finalExamLevel) + 1];
+          if (nextLevel) {
+            state.level = nextLevel;
+            state.activePack = null;
+            currentLessonIdx = 0;
+          }
+        }
+        saveState(state);
       }
-      saveState(state);
     }
     quizState = null;
     showScreen('today');
@@ -1540,9 +1657,10 @@ function finishQuiz(passed) {
 
   if (passed && !practice) {
     if (!state.testsPassed) state.testsPassed = {};
-    if (!state.testsPassed[state.level]) state.testsPassed[state.level] = [];
-    if (!state.testsPassed[state.level].includes(testIdx)) {
-      state.testsPassed[state.level].push(testIdx);
+    const key = getPoolKey();
+    if (!state.testsPassed[key]) state.testsPassed[key] = [];
+    if (!state.testsPassed[key].includes(testIdx)) {
+      state.testsPassed[key].push(testIdx);
     }
     saveState(state);
 
@@ -1572,6 +1690,69 @@ function finishQuiz(passed) {
     showScreen('today');
     renderLesson();
   }
+}
+
+// ── PACK MANAGEMENT ──────────────────────────────────────────────────────────
+
+const DATA_BASE = 'data'; // relative path — works on GitHub Pages
+
+async function fetchManifest() {
+  try {
+    const res = await fetch(`${DATA_BASE}/manifest.json?t=${Date.now()}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    state.availablePacks = data.packs || {};
+    saveState(state);
+    return data.packs;
+  } catch { return null; }
+}
+
+async function downloadPack(level, packId) {
+  const key = `${level}:${packId}`;
+  if (state.downloadedPacks[key]) return true; // already cached
+  try {
+    const res = await fetch(`${DATA_BASE}/${level}/${packId}.json?t=${Date.now()}`);
+    if (!res.ok) return false;
+    const lessons = await res.json();
+    state.downloadedPacks[key] = lessons;
+    saveState(state);
+    return true;
+  } catch { return false; }
+}
+
+function activatePack(level, packId) {
+  state.activePack = { level, packId };
+  state.level = level;
+  currentLessonIdx = 0;
+  saveState(state);
+  renderLesson();
+}
+
+function switchToBuiltInPack(level) {
+  state.activePack = null;
+  state.level = level;
+  currentLessonIdx = state.seenIndex[level] || 0;
+  saveState(state);
+  renderLesson();
+}
+
+async function handlePackSelect(level, packId) {
+  const key = `${level}:${packId}`;
+  const btn = document.querySelector(`[data-pack="${packId}"]`);
+  if (btn) { btn.classList.add('downloading'); btn.textContent = 'Loading…'; }
+
+  const ok = await downloadPack(level, packId);
+  if (!ok) {
+    alert('Could not download pack. Please check your connection and try again.');
+    if (btn) { btn.classList.remove('downloading'); btn.textContent = packId.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase()); }
+    return;
+  }
+  activatePack(level, packId);
+}
+
+function showPackChooser(level) {
+  // Refresh manifest then re-render to show pack options
+  fetchManifest().then(() => renderLesson());
 }
 
 // ── NAG POPUP ───────────────────────────────────────────────────────────────
@@ -1765,6 +1946,11 @@ renderLesson();
 renderSettings();
 initServiceWorker();
 showNagPopup();
+// Fetch manifest in background so pack options are available
+fetchManifest().then(() => {
+  // Re-render if on today screen to show pack banners if newly available
+  if (currentScreen === 'today') renderLesson();
+});
 </script>
 </body>
 </html>
