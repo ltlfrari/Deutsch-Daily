@@ -1005,7 +1005,7 @@ function renderLesson() {
   const lesson = pool[currentLessonIdx];
   const hide = state.hideTranslations;
   const today = todayStr();
-  const key = `${today}:${currentLessonIdx}`;
+  const key = `${getPoolKey()}:${today}:${currentLessonIdx}`;
   const isDone = !!state.history.find(h => h.key === key);
 
   // count total done today
